@@ -134,3 +134,16 @@ class UnimplementedCommandHandler: MMCommandHandler{
         throw MMCliError.unimplementedCommand
     }
 }
+
+class LoadCommandHandler: MMCommandHandler{
+    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+//        for item in params {
+//            print(item)
+//        }
+        let filename = params[0]
+        
+        
+        
+        throw MMCliError.unimplementedCommand
+    }
+}

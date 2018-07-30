@@ -41,7 +41,10 @@ while let line = prompt("> "){
         }
         command = parts.removeFirst();
         switch(command){
-        case "load", "list", "add", "set", "del", "save-search", "save":
+        case "load":
+            last = try LoadCommandHandler.handle(parts, last:last)
+            break
+        case "list", "add", "set", "del", "save-search", "save":
             last = try UnimplementedCommandHandler.handle(parts, last:last)
             break
         case "help":
