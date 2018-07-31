@@ -44,9 +44,34 @@ while let line = prompt("> "){
         case "load":
             last = try LoadCommandHandler.handle(parts, last:last)
             break
-        case "list", "add", "set", "del", "save-search", "save":
-            last = try UnimplementedCommandHandler.handle(parts, last:last)
+        
+        case "list":
+            last = try ListCommandHandler.handle(parts, last:last)
+            
+            
+        case "add":
+            last = try AddCommandHandler.handle(parts, last:last)
             break
+        
+        case "set":
+            last = try SetCommandHandler.handle(parts, last:last)
+            break
+        
+        case "del":
+            last = try DelCommandHandler.handle(parts, last:last)
+            break
+            
+        case "save":
+            last = try SaveCommandHandler.handle(parts, last:last)
+            break
+            
+        case  "save-search":
+            last = try SaveSearchCommandHandler.handle(parts, last:last)
+            break
+        
+//        case  "save-search":
+//            last = try UnimplementedCommandHandler.handle(parts, last:last)
+//            break
         case "help":
             last = try HelpCommandHandler.handle(parts, last:last)
             break

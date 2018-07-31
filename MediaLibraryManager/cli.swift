@@ -142,8 +142,55 @@ class LoadCommandHandler: MMCommandHandler{
 //        }
         let filename = params[0]
         
-        
-        
+        throw MMCliError.unimplementedCommand
+    }
+    
+}
+class ListCommandHandler: MMCommandHandler{
+    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+         throw MMCliError.unimplementedCommand
+    }
+   
+
+}
+class LastCommandHandler: MMCommandHandler{
+    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+        throw MMCliError.unimplementedCommand
+    }
+    
+    
+}
+class AddCommandHandler: MMCommandHandler{
+    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+        throw MMCliError.unimplementedCommand
+    }
+    
+    
+}
+class SetCommandHandler: MMCommandHandler{
+    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
+
+
+class DelCommandHandler: MMCommandHandler{
+    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+        throw MMCliError.unimplementedCommand
+    }
+}
+
+class SaveCommandHandler: MMCommandHandler{
+    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+        throw MMCliError.unimplementedCommand
+    }
+}
+
+class SaveSearchCommandHandler: MMCommandHandler{
+    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+        throw MMCliError.unimplementedCommand
+    }
+}
+
+
+
