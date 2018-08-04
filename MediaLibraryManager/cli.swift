@@ -28,6 +28,9 @@ enum MMCliError: Error {
     /// Thrown if there is no command given
     case noCommand
     
+    /// Thrown if the file being read in doesn't exist
+    case invalidFile(String)
+    
     // feel free to add more errors as you need them
 }
 
@@ -137,14 +140,27 @@ class UnimplementedCommandHandler: MMCommandHandler{
 
 class LoadCommandHandler: MMCommandHandler{
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
-//        for item in params {
-//            print(item)
-//        }
-        let filename = params[0]
-        
+        for item in params {
+            // Parse the command to replace '~' with home directory
+            let path = CommandLineParser.getCommand(inputString: item)
+            
+            //Check that the file actually exists before continuing
+            if FileManager.default.fileExists(atPath: path) {
+                let contents = try String(contentsOfFile: path)
+                
+                
+                
+                
+                
+                
+                print(contents)
+                
+            } else {
+                throw MMCliError.invalidFile(path)
+            }
+        }
         throw MMCliError.unimplementedCommand
     }
-    
 }
 class ListCommandHandler: MMCommandHandler{
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
@@ -189,6 +205,17 @@ class SaveCommandHandler: MMCommandHandler{
 class SaveSearchCommandHandler: MMCommandHandler{
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
+    }
+}
+
+class CommandLineParser{
+    static func getCommand(inputString: String) -> String {
+        if (inputString.contains("~")) {
+           let path = inputString.replacingOccurrences(of: "~", with: NSString(string: "~").expandingTildeInPath)
+            return path
+        } else {
+            return inputString
+        }
     }
 }
 

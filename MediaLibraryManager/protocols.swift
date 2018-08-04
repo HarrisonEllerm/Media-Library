@@ -22,6 +22,18 @@ import Foundation
 
 
 ///
+/// Represents the media type associated
+/// with a file.
+/// These include:
+///    - Image
+///    - Video
+///    - Document
+///    - Audio
+enum MediaType {
+    case image, video, document, audio
+}
+
+///
 /// Represents a file with metadata (a key/value store)
 ///
 /// In this protocol we define three properties and that it must confrom to the
@@ -31,6 +43,7 @@ protocol MMFile: CustomStringConvertible{
     var metadata: [MMMetadata] {get set}
     var filename: String {get set}
     var path: String {get set}
+    var type: MediaType {get set}
 }
 
 ///

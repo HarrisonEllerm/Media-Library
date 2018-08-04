@@ -2,7 +2,7 @@
 //  MultiMediaMetaData.swift
 //  MediaLibraryManager
 //
-//  Created by Harrison Ellerm on 30/07/18.
+//  Created by Harrison Ellerm on 2/08/18.
 //  Copyright © 2018 Paul Crane. All rights reserved.
 //
 
@@ -16,16 +16,13 @@ class MultiMediaMetaData : MMMetadata {
     
     var description: String {
         get {
-            return "Keyword: \(keyword) Value: \(value) Description: \(self.description)"
-        }
-        set(newDescription) {
-            self.description = newDescription
+            return ""
         }
     }
     
-    init(keyword: String, value: String, description: String) {
+    init(keyword: String, value: String) {
         self.keyword = keyword
         self.value = value
-        self.description = description
     }
+    
 }

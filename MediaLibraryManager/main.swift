@@ -65,13 +65,10 @@ while let line = prompt("> "){
             last = try SaveCommandHandler.handle(parts, last:last)
             break
             
-        case  "save-search":
+        case "save-search":
             last = try SaveSearchCommandHandler.handle(parts, last:last)
             break
-        
-//        case  "save-search":
-//            last = try UnimplementedCommandHandler.handle(parts, last:last)
-//            break
+            
         case "help":
             last = try HelpCommandHandler.handle(parts, last:last)
             break
@@ -94,5 +91,7 @@ while let line = prompt("> "){
         print("The \"\(command)\" command is not implemented.")
     }catch MMCliError.missingResultSet {
         print("No previous results to work from.")
+    }catch MMCliError.invalidFile(let fileName) {
+        print("File \(URL(fileURLWithPath: fileName).lastPathComponent) not found.")
     }
 }

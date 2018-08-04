@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6F5B02E7210EF50A002382B6 /* MultiMediaFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5B02E6210EF50A002382B6 /* MultiMediaFile.swift */; };
-		6F5B02E9210EFAD5002382B6 /* MultiMediaMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F5B02E8210EFAD5002382B6 /* MultiMediaMetaData.swift */; };
+		6F9B73C82112F894003CDF8F /* MultiMediaMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9B73C72112F894003CDF8F /* MultiMediaMetaData.swift */; };
+		6F9B73CA2112F945003CDF8F /* MultiMediaFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9B73C92112F945003CDF8F /* MultiMediaFile.swift */; };
+		6F9B73CC2112FA47003CDF8F /* MultiMediaCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9B73CB2112FA47003CDF8F /* MultiMediaCollection.swift */; };
 		D3161D2420D748F800EC97E8 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3161D2320D748F800EC97E8 /* main.swift */; };
 		D3161D2D20D749BD00EC97E8 /* protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3161D2C20D749BD00EC97E8 /* protocols.swift */; };
 		D3CB3A9D20DB264200AF519E /* cli.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3CB3A9C20DB264200AF519E /* cli.swift */; };
@@ -27,8 +28,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6F5B02E6210EF50A002382B6 /* MultiMediaFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaFile.swift; sourceTree = "<group>"; };
-		6F5B02E8210EFAD5002382B6 /* MultiMediaMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaMetaData.swift; sourceTree = "<group>"; };
+		6F9B73C72112F894003CDF8F /* MultiMediaMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaMetaData.swift; sourceTree = "<group>"; };
+		6F9B73C92112F945003CDF8F /* MultiMediaFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaFile.swift; sourceTree = "<group>"; };
+		6F9B73CB2112FA47003CDF8F /* MultiMediaCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaCollection.swift; sourceTree = "<group>"; };
 		D3161D2020D748F800EC97E8 /* MediaLibraryManager */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MediaLibraryManager; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3161D2320D748F800EC97E8 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		D3161D2C20D749BD00EC97E8 /* protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = protocols.swift; sourceTree = "<group>"; };
@@ -68,8 +70,9 @@
 				D3161D2C20D749BD00EC97E8 /* protocols.swift */,
 				D3161D2320D748F800EC97E8 /* main.swift */,
 				D3CB3A9C20DB264200AF519E /* cli.swift */,
-				6F5B02E6210EF50A002382B6 /* MultiMediaFile.swift */,
-				6F5B02E8210EFAD5002382B6 /* MultiMediaMetaData.swift */,
+				6F9B73C72112F894003CDF8F /* MultiMediaMetaData.swift */,
+				6F9B73C92112F945003CDF8F /* MultiMediaFile.swift */,
+				6F9B73CB2112FA47003CDF8F /* MultiMediaCollection.swift */,
 			);
 			path = MediaLibraryManager;
 			sourceTree = "<group>";
@@ -131,11 +134,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6F9B73CC2112FA47003CDF8F /* MultiMediaCollection.swift in Sources */,
 				D3CB3A9D20DB264200AF519E /* cli.swift in Sources */,
-				6F5B02E9210EFAD5002382B6 /* MultiMediaMetaData.swift in Sources */,
 				D3161D2420D748F800EC97E8 /* main.swift in Sources */,
-				6F5B02E7210EF50A002382B6 /* MultiMediaFile.swift in Sources */,
 				D3161D2D20D749BD00EC97E8 /* protocols.swift in Sources */,
+				6F9B73CA2112F945003CDF8F /* MultiMediaFile.swift in Sources */,
+				6F9B73C82112F894003CDF8F /* MultiMediaMetaData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

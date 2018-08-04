@@ -2,13 +2,13 @@
 //  MultiMediaFile.swift
 //  MediaLibraryManager
 //
-//  Created by Harrison Ellerm on 30/07/18.
+//  Created by Harrison Ellerm on 2/08/18.
 //  Copyright © 2018 Paul Crane. All rights reserved.
 //
 
 import Foundation
 
-class MultiMediaFile : MMFile {
+class MultiMediaFile: MMFile {
     
     var metadata: [MMMetadata]
     
@@ -16,13 +16,19 @@ class MultiMediaFile : MMFile {
     
     var path: String
     
-    var description: String
+    var type: MediaType
     
-    init(metadata: [MMMetadata], filename: String, path: String, description: String) {
+    var description: String {
+        get {
+            return ""
+        }
+    }
+    
+    init(metadata: [MMMetadata], filename: String, path: String, type: MediaType) {
         self.metadata = metadata
         self.filename = filename
         self.path = path
-        self.description = description
+        self.type = type
     }
-    
+
 }
