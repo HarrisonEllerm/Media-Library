@@ -148,32 +148,38 @@ class UnimplementedCommandHandler: MMCommandHandler {
 
 class LoadCommandHandler: MMCommandHandler {
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+        
+        //Note to self -> CommandLineParser and decoder could be Singleton
+        
+        var files = [MMFile]()
+        let decoder = JSONDecoder()
+        
         for item in params {
-            var files = [MMFile]()
+        
             // Parse the command to replace '~' with home directory
             let path = CommandLineParser.getCommand(inputString: item)
+            
             //Check that the file actually exists before continuing
             if FileManager.default.fileExists(atPath: path) {
-                let contents = try String(contentsOfFile: path)
-                if let data = contents.data(using: .utf8) {
-                    let decoder = JSONDecoder()
+                
+                if let data = try String(contentsOfFile: path).data(using: .utf8) {
+              
                     let media : [Media] = try! decoder.decode([Media].self, from: data)
                     for item in media {
-                        let path = item.fullpath
                         let fileName = URL(fileURLWithPath: path).lastPathComponent
-                        let mediaType = item.type
                         var metaData = [MultiMediaMetaData]()
                         for data in item.metadata {
                             let metaDataItem = MultiMediaMetaData(keyword: data.key, value: data.value)
                             metaData.append(metaDataItem)
                         }
-                        let file = MultiMediaFile(metadata: metaData, filename: fileName, path: path, type: mediaType)
+                        let file = MultiMediaFile(metadata: metaData, filename: fileName, path: item.fullpath, type: item.type)
                         files.append(file)
                         
                     }
                 } else {
                     throw MMCliError.couldNotParse
                 }
+            
             } else {
                 throw MMCliError.invalidFile(path)
             }
