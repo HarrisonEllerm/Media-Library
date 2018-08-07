@@ -29,7 +29,7 @@ import Foundation
 ///    - Video
 ///    - Document
 ///    - Audio
-enum MediaType {
+enum MediaType : String, Codable {
     case image, video, document, audio
 }
 

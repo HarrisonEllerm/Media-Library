@@ -16,7 +16,7 @@ class MultiMediaMetaData : MMMetadata {
     
     var description: String {
         get {
-            return ""
+            return "\(keyword):\(value)"
         }
     }
     

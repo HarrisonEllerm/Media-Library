@@ -20,7 +20,7 @@ class MultiMediaFile: MMFile {
     
     var description: String {
         get {
-            return ""
+            return "MultiMediaFile[Path: \(path), Filename: \(filename), MediaType: \(type), Metadata: \(metadata)"
         }
     }
     
@@ -30,5 +30,4 @@ class MultiMediaFile: MMFile {
         self.path = path
         self.type = type
     }
-
 }

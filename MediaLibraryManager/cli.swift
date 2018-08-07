@@ -31,6 +31,9 @@ enum MMCliError: Error {
     /// Thrown if the file being read in doesn't exist
     case invalidFile(String)
     
+    /// Thrown if the file being read cannot be parsed
+    case couldNotParse
+    
     // feel free to add more errors as you need them
 }
 
@@ -83,6 +86,12 @@ class MMResultSet{
     }
 }
 
+struct Media : Codable {
+    var fullpath: String
+    var type : MediaType
+    var metadata : [String: String]
+}
+
 /// The interface for the command handler.
 protocol MMCommandHandler{
     
@@ -124,7 +133,7 @@ class HelpCommandHandler: MMCommandHandler{
 }
 
 /// Handle the 'quit' command
-class QuitCommandHandler : MMCommandHandler{
+class QuitCommandHandler : MMCommandHandler {
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         // you may want to prompt if the previous result set hasn't been saved...
         exit(0)
@@ -132,29 +141,39 @@ class QuitCommandHandler : MMCommandHandler{
 }
 
 // All the other commands are unimplemented
-class UnimplementedCommandHandler: MMCommandHandler{
+class UnimplementedCommandHandler: MMCommandHandler {
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
-class LoadCommandHandler: MMCommandHandler{
+class LoadCommandHandler: MMCommandHandler {
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         for item in params {
             // Parse the command to replace '~' with home directory
             let path = CommandLineParser.getCommand(inputString: item)
-            
             //Check that the file actually exists before continuing
             if FileManager.default.fileExists(atPath: path) {
                 let contents = try String(contentsOfFile: path)
-                
-                
-                
-                
-                
-                
-                print(contents)
-                
+                if let data = contents.data(using: .utf8) {
+                    let decoder = JSONDecoder()
+                    let media : [Media] = try! decoder.decode([Media].self, from: data)
+                    for item in media {
+                        let path = item.fullpath
+                        let fileName = URL(fileURLWithPath: path).lastPathComponent
+                        let mediaType = item.type
+                        var metaData = [MultiMediaMetaData]()
+                        for data in item.metadata {
+                            let metaDataItem = MultiMediaMetaData(keyword: data.key, value: data.value)
+                            metaData.append(metaDataItem)
+                        }
+                        let file = MultiMediaFile(metadata: metaData, filename: fileName, path: path, type: mediaType)
+                        print(file)
+                        
+                    }
+                } else {
+                    throw MMCliError.couldNotParse
+                }
             } else {
                 throw MMCliError.invalidFile(path)
             }

@@ -93,5 +93,7 @@ while let line = prompt("> "){
         print("No previous results to work from.")
     }catch MMCliError.invalidFile(let fileName) {
         print("File \(URL(fileURLWithPath: fileName).lastPathComponent) not found.")
+    }catch MMCliError.couldNotParse {
+        print("Could not successfully parse the file, please check your JSON.")
     }
 }
