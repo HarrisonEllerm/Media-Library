@@ -147,11 +147,13 @@ class UnimplementedCommandHandler: MMCommandHandler {
 }
 
 class LoadCommandHandler: MMCommandHandler {
+    
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         
         //Note to self -> CommandLineParser and decoder could be Singleton
         
         var files = [MMFile]()
+        var garbage = [MMFile]()
         let decoder = JSONDecoder()
         
         for item in params {
@@ -166,16 +168,21 @@ class LoadCommandHandler: MMCommandHandler {
               
                     let media : [Media] = try! decoder.decode([Media].self, from: data)
                     for item in media {
+  
                         let fileName = URL(fileURLWithPath: path).lastPathComponent
                         var metaData = [MultiMediaMetaData]()
                         for data in item.metadata {
                             let metaDataItem = MultiMediaMetaData(keyword: data.key, value: data.value)
                             metaData.append(metaDataItem)
                         }
-                        let file = MultiMediaFile(metadata: metaData, filename: fileName, path: item.fullpath, type: item.type)
-                        files.append(file)
-                        
+                        let file = getMultiMedaiFile(fileName, metaData, item)
+                        if file.1 {
+                            files.append(file.0)
+                        } else {
+                            garbage.append(file.0)
+                        }
                     }
+                    
                 } else {
                     throw MMCliError.couldNotParse
                 }
@@ -186,7 +193,36 @@ class LoadCommandHandler: MMCommandHandler {
         }
         throw MMCliError.unimplementedCommand
     }
+    
+    ///
+    /// This function gets the appropriate media file for a given item inside the decoded JSON.
+    /// It returns a tuple with the given file and a boolean value indicating if it was created
+    /// with the correct metadata or not.
+    ///
+    /// - parameter : filename, a string representing the file name
+    /// - parameter : metadata, the metadata that belongs to the item.
+    /// - parameter : item, the actual media item
+    ///
+    /// - returns: a tuple containing the file created, and a boolean value.
+    ///
+    private static func getMultiMedaiFile(_ filename: String, _ metadata: [MultiMediaMetaData], _ item: Media) -> (MultiMediaFile, Bool) {
+        switch item.type {
+        case MediaType.image:
+            let file = ImageMultiMediaFile(metadata: metadata, filename: filename, path: item.fullpath, type: item.type)
+            return (file, file.isValid())
+        case MediaType.audio:
+            let file = AudioMultiMediaFile(metadata: metadata, filename: filename, path: item.fullpath, type: item.type)
+            return (file, file.isValid())
+        case MediaType.document:
+            let file = DocumentMultiMediaFile(metadata: metadata, filename: filename, path: item.fullpath, type: item.type)
+            return (file, file.isValid())
+        case MediaType.video:
+            let file = VideoMultiMediaFile(metadata: metadata, filename: filename, path: item.fullpath, type: item.type)
+            return (file, file.isValid())
+        }
+    }
 }
+
 class ListCommandHandler: MMCommandHandler{
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
          throw MMCliError.unimplementedCommand
