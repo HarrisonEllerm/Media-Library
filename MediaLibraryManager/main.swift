@@ -9,7 +9,7 @@
 import Foundation
 
 // TODO create your instance of your library here
-var library:MMCollection? = nil
+var library:MMCollection? = MultiMediaCollection()
 var last = MMResultSet()
 
 // The while-loop below implements a basic command line interface. Some

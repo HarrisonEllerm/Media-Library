@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F2CD2D5211944BE0098BE8D /* MultiMediaCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F2CD2D4211944BE0098BE8D /* MultiMediaCollection.swift */; };
 		6F9B73C82112F894003CDF8F /* MultiMediaMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9B73C72112F894003CDF8F /* MultiMediaMetaData.swift */; };
 		6F9B73CA2112F945003CDF8F /* MultiMediaFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9B73C92112F945003CDF8F /* MultiMediaFile.swift */; };
 		D3161D2420D748F800EC97E8 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3161D2320D748F800EC97E8 /* main.swift */; };
@@ -27,6 +28,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4F2CD2D4211944BE0098BE8D /* MultiMediaCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaCollection.swift; sourceTree = "<group>"; };
 		6F9B73C72112F894003CDF8F /* MultiMediaMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaMetaData.swift; sourceTree = "<group>"; };
 		6F9B73C92112F945003CDF8F /* MultiMediaFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaFile.swift; sourceTree = "<group>"; };
 		D3161D2020D748F800EC97E8 /* MediaLibraryManager */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MediaLibraryManager; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,6 +72,7 @@
 				D3CB3A9C20DB264200AF519E /* cli.swift */,
 				6F9B73C72112F894003CDF8F /* MultiMediaMetaData.swift */,
 				6F9B73C92112F945003CDF8F /* MultiMediaFile.swift */,
+				4F2CD2D4211944BE0098BE8D /* MultiMediaCollection.swift */,
 			);
 			path = MediaLibraryManager;
 			sourceTree = "<group>";
@@ -131,6 +134,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F2CD2D5211944BE0098BE8D /* MultiMediaCollection.swift in Sources */,
 				D3CB3A9D20DB264200AF519E /* cli.swift in Sources */,
 				D3161D2420D748F800EC97E8 /* main.swift in Sources */,
 				D3161D2D20D749BD00EC97E8 /* protocols.swift in Sources */,

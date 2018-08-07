@@ -34,7 +34,6 @@ enum MMCliError: Error {
     /// Thrown if the file being read cannot be parsed
     case couldNotParse
     
-    // feel free to add more errors as you need them
 }
 
 /// Generate a friendly prompt and wait for the user to enter a line of input
@@ -150,6 +149,7 @@ class UnimplementedCommandHandler: MMCommandHandler {
 class LoadCommandHandler: MMCommandHandler {
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         for item in params {
+            var files = [MMFile]()
             // Parse the command to replace '~' with home directory
             let path = CommandLineParser.getCommand(inputString: item)
             //Check that the file actually exists before continuing
@@ -168,7 +168,7 @@ class LoadCommandHandler: MMCommandHandler {
                             metaData.append(metaDataItem)
                         }
                         let file = MultiMediaFile(metadata: metaData, filename: fileName, path: path, type: mediaType)
-                        print(file)
+                        files.append(file)
                         
                     }
                 } else {
@@ -227,6 +227,11 @@ class SaveSearchCommandHandler: MMCommandHandler{
     }
 }
 
+///
+/// A class used to allow quick parsing of command line
+/// arguments, replacing paths with a '~' character with
+/// the users home directory
+///
 class CommandLineParser{
     static func getCommand(inputString: String) -> String {
         if (inputString.contains("~")) {
