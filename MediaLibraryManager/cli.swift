@@ -131,6 +131,16 @@ class HelpCommandHandler: MMCommandHandler{
     }
 }
 
+/// Handle the 'clear' command
+class ClearCommandHandler: MMCommandHandler {
+    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+        for _ in 1...100 {
+            puts(" ")
+        }
+        return MMResultSet()
+    }
+}
+
 /// Handle the 'quit' command
 class QuitCommandHandler : MMCommandHandler {
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
@@ -146,20 +156,18 @@ class UnimplementedCommandHandler: MMCommandHandler {
     }
 }
 
+///Handle the 'load' command
 class LoadCommandHandler: MMCommandHandler {
     
     static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
-        
-        //Note to self -> CommandLineParser and decoder could be Singleton
-        
+       
         var files = [MMFile]()
         var garbage = [MMFile]()
         let decoder = JSONDecoder()
         
         for item in params {
-        
             // Parse the command to replace '~' with home directory
-            let path = CommandLineParser.getCommand(inputString: item)
+            let path = CommandLineParser.sharedInstance.getCommand(inputString: item)
             
             //Check that the file actually exists before continuing
             if FileManager.default.fileExists(atPath: path) {
@@ -176,22 +184,84 @@ class LoadCommandHandler: MMCommandHandler {
                             metaData.append(metaDataItem)
                         }
                         let file = getMultiMedaiFile(fileName, metaData, item)
+                        
+                        //If file is valid
                         if file.1 {
                             files.append(file.0)
                         } else {
                             garbage.append(file.0)
                         }
                     }
-                    
+                //File could not be parsed using .utf8
                 } else {
                     throw MMCliError.couldNotParse
                 }
-            
+            //File did not exist at the location specificed
             } else {
                 throw MMCliError.invalidFile(path)
             }
         }
-        throw MMCliError.unimplementedCommand
+        if garbage.count > 0 {
+            handleGarbage(contents: garbage)
+        }
+        
+        return MMResultSet(files)
+    }
+    
+    ///
+    /// This function handles files which were not added to the result
+    /// set as they violated the minimum metadata requirements for that
+    /// particular file type. It handles the "Garbage" by displaying to
+    /// the user the file(s) that were not returned as part of the result
+    /// set and why they were not returned.
+    ///
+    /// - parameter : contents, the garbage (collection of MMFiles)
+    ///
+    private static func handleGarbage(contents: [MMFile]) {
+        print("\n<------------------------ Import Error Log ------------------------>")
+        print("\t\t\t\tThe following \(contents.count) file(s) were ignored:\n")
+        for item in contents {
+            print("\(item.path):")
+            switch item.type {
+                
+                case MediaType.image:
+                    if let imageFile = item as? ImageMultiMediaFile {
+                        let errors = imageFile.getErrors()
+                        for err in errors {
+                            print("     > \(err)")
+                        }
+                        print()
+                    }
+                
+                case MediaType.audio:
+                    if let audioFile = item as? AudioMultiMediaFile {
+                        let errors = audioFile.getErrors()
+                        for err in errors {
+                            print("     > \(err)")
+                        }
+                        print()
+                    }
+                
+                case MediaType.document:
+                    if let documentFile = item as? DocumentMultiMediaFile {
+                        let errors = documentFile.getErrors()
+                        for err in errors {
+                            print("     > \(err)")
+                        }
+                        print()
+                    }
+                
+                case MediaType.video:
+                    if let videoFile = item as? VideoMultiMediaFile {
+                        let errors = videoFile.getErrors()
+                        for err in errors {
+                            print("     > \(err)")
+                        }
+                    }
+                    print()
+                }
+        }
+        print("<------------------------------------------------------------------>\n")
     }
     
     ///
@@ -272,10 +342,17 @@ class SaveSearchCommandHandler: MMCommandHandler{
 ///
 /// A class used to allow quick parsing of command line
 /// arguments, replacing paths with a '~' character with
-/// the users home directory
+/// the users home directory.
 ///
-class CommandLineParser{
-    static func getCommand(inputString: String) -> String {
+/// Implements the Singleton design pattern.
+///
+class CommandLineParser {
+    
+    static let sharedInstance = CommandLineParser()
+    
+    private init() {}
+    
+    func getCommand(inputString: String) -> String {
         if (inputString.contains("~")) {
            let path = inputString.replacingOccurrences(of: "~", with: NSString(string: "~").expandingTildeInPath)
             return path

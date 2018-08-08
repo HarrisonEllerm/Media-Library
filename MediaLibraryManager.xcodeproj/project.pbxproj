@@ -56,6 +56,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6F439B8F211AE0E60002A960 /* MultiMediaFileTypes */ = {
+			isa = PBXGroup;
+			children = (
+				4FF519762119A3EE00FFDD02 /* ImageMultiMediaFile.swift */,
+				4FF519782119A4BC00FFDD02 /* VideoMultiMediaFile.swift */,
+				4FF5197A2119A50F00FFDD02 /* DocumentMultiMediaFile.swift */,
+				4FF5197C2119A53F00FFDD02 /* AudioMultiMediaFile.swift */,
+			);
+			path = MultiMediaFileTypes;
+			sourceTree = "<group>";
+		};
 		D3161D1720D748F800EC97E8 = {
 			isa = PBXGroup;
 			children = (
@@ -75,16 +86,13 @@
 		D3161D2220D748F800EC97E8 /* MediaLibraryManager */ = {
 			isa = PBXGroup;
 			children = (
+				6F439B8F211AE0E60002A960 /* MultiMediaFileTypes */,
 				D3161D2C20D749BD00EC97E8 /* protocols.swift */,
 				D3161D2320D748F800EC97E8 /* main.swift */,
 				D3CB3A9C20DB264200AF519E /* cli.swift */,
 				6F9B73C72112F894003CDF8F /* MultiMediaMetaData.swift */,
 				6F9B73C92112F945003CDF8F /* MultiMediaFile.swift */,
 				4F2CD2D4211944BE0098BE8D /* MultiMediaCollection.swift */,
-				4FF519762119A3EE00FFDD02 /* ImageMultiMediaFile.swift */,
-				4FF519782119A4BC00FFDD02 /* VideoMultiMediaFile.swift */,
-				4FF5197A2119A50F00FFDD02 /* DocumentMultiMediaFile.swift */,
-				4FF5197C2119A53F00FFDD02 /* AudioMultiMediaFile.swift */,
 			);
 			path = MediaLibraryManager;
 			sourceTree = "<group>";

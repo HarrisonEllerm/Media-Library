@@ -18,8 +18,6 @@ class MultiMediaFile: MMFile {
     
     var type: MediaType
     
-    var isValid: Bool
-    
     var description: String {
         get {
             return "MultiMediaFile[Path: \(path), Filename: \(filename), MediaType: \(type), Metadata: \(metadata)"
@@ -31,6 +29,5 @@ class MultiMediaFile: MMFile {
         self.filename = filename
         self.path = path
         self.type = type
-        self.isValid = false
     }
 }

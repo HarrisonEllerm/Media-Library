@@ -72,6 +72,11 @@ while let line = prompt("> "){
         case "help":
             last = try HelpCommandHandler.handle(parts, last:last)
             break
+        
+        case "clear":
+            last = try ClearCommandHandler.handle(parts, last:last)
+            break
+            
         case "quit":
             last = try QuitCommandHandler.handle(parts, last:last)
             // so we don't show the results of the previous command
