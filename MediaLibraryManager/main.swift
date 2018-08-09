@@ -42,43 +42,42 @@ while let line = prompt("> "){
         command = parts.removeFirst();
         switch(command){
         case "load":
-            last = try LoadCommandHandler.handle(parts, last:last)
+            last = try LoadCommandHandler().handle(parts, last:last)
             break
         
         case "list":
-            last = try ListCommandHandler.handle(parts, last:last)
-            
+            last = try ListCommandHandler().handle(parts, last:last)
             
         case "add":
-            last = try AddCommandHandler.handle(parts, last:last)
+            last = try AddCommandHandler().handle(parts, last:last)
             break
         
         case "set":
-            last = try SetCommandHandler.handle(parts, last:last)
+            last = try SetCommandHandler().handle(parts, last: last)
             break
         
         case "del":
-            last = try DelCommandHandler.handle(parts, last:last)
+            last = try DelCommandHandler().handle(parts, last:last)
             break
             
         case "save":
-            last = try SaveCommandHandler.handle(parts, last:last)
+            last = try SaveCommandHandler().handle(parts, last:last)
             break
             
         case "save-search":
-            last = try SaveSearchCommandHandler.handle(parts, last:last)
+            last = try SaveSearchCommandHandler().handle(parts, last:last)
             break
             
         case "help":
-            last = try HelpCommandHandler.handle(parts, last:last)
+            last = try HelpCommandHandler().handle(parts, last:last)
             break
         
         case "clear":
-            last = try ClearCommandHandler.handle(parts, last:last)
+            last = try ClearCommandHandler().handle(parts, last:last)
             break
             
         case "quit":
-            last = try QuitCommandHandler.handle(parts, last:last)
+            last = try QuitCommandHandler().handle(parts, last:last)
             // so we don't show the results of the previous command
             // (before the quit), we'll continue here instead of breaking
             continue
@@ -100,5 +99,31 @@ while let line = prompt("> "){
         print("File \(URL(fileURLWithPath: fileName).lastPathComponent) not found.")
     }catch MMCliError.couldNotParse {
         print("Could not successfully parse the file, please check your JSON.")
+    }catch MMCliError.couldNotDecode {
+        print("Could not decode the json file. Please ensure it follows the expected format:")
+        print("[")
+        print(" {")
+        print("""
+                "fullpath": "/path/to/foobar.ext",
+              """)
+        print("""
+                "type": "image|video|document|audio",
+              """)
+        print("""
+                "metadata": {
+              """)
+        print("""
+                    "key1": "value1",
+              """)
+        print("""
+                    "key2": "value1",
+              """)
+        print("""
+                    "...": "...",
+              """)
+        print("    }")
+        print(" },")
+        print("...")
+        print("]")
     }
 }

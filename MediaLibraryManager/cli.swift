@@ -34,6 +34,9 @@ enum MMCliError: Error {
     /// Thrown if the file being read cannot be parsed
     case couldNotParse
     
+    // Thrown if the json format of the file being read is wrong
+    case couldNotDecode
+    
 }
 
 /// Generate a friendly prompt and wait for the user to enter a line of input
@@ -106,7 +109,7 @@ protocol MMCommandHandler{
     /// - Throws: one of the `MMCliError` exceptions
     ///
     /// - returns: an instance of `MMResultSet`
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet;
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet;
     
 }
 
@@ -114,7 +117,7 @@ protocol MMCommandHandler{
 /// - Attention: There are some examples of the commands in the source code
 /// comments
 class HelpCommandHandler: MMCommandHandler{
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet{
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet{
         print("""
 \thelp                              - this text
 \tload <filename> ...               - load file into the collection
@@ -131,9 +134,30 @@ class HelpCommandHandler: MMCommandHandler{
     }
 }
 
+class TestCommandHandler: MMCommandHandler{
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet{
+        print("""
+\thelp                              - load test
+\tquit testing                      - exit testing mode
+""")
+        return MMResultSet()
+    }
+}
+
+class LoadTestHandler {
+    
+    
+    
+    init() {
+        
+    }
+    
+}
+
+
 /// Handle the 'clear' command
-class ClearCommandHandler: MMCommandHandler {
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+class ClearCommandHandler: MMCommandHandler{
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         for _ in 1...100 {
             puts(" ")
         }
@@ -143,7 +167,7 @@ class ClearCommandHandler: MMCommandHandler {
 
 /// Handle the 'quit' command
 class QuitCommandHandler : MMCommandHandler {
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         // you may want to prompt if the previous result set hasn't been saved...
         exit(0)
     }
@@ -151,48 +175,55 @@ class QuitCommandHandler : MMCommandHandler {
 
 // All the other commands are unimplemented
 class UnimplementedCommandHandler: MMCommandHandler {
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
 ///Handle the 'load' command
 class LoadCommandHandler: MMCommandHandler {
-    
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
        
         var files = [MMFile]()
         var garbage = [MMFile]()
         let decoder = JSONDecoder()
+        let parser = CommandLineParser()
         
         for item in params {
             // Parse the command to replace '~' with home directory
-            let path = CommandLineParser.sharedInstance.getCommand(inputString: item)
+            let path = parser.getCommand(inputString: item)
             
             //Check that the file actually exists before continuing
             if FileManager.default.fileExists(atPath: path) {
                 
                 if let data = try String(contentsOfFile: path).data(using: .utf8) {
-              
-                    let media : [Media] = try! decoder.decode([Media].self, from: data)
-                    for item in media {
-  
-                        let fileName = URL(fileURLWithPath: path).lastPathComponent
-                        var metaData = [MultiMediaMetaData]()
-                        for data in item.metadata {
-                            let metaDataItem = MultiMediaMetaData(keyword: data.key, value: data.value)
-                            metaData.append(metaDataItem)
+                    
+                    //need to safeguard this
+                    do {
+                        let media : [Media] = try decoder.decode([Media].self, from: data)
+                        for item in media {
+                            
+                            let fileName = URL(fileURLWithPath: path).lastPathComponent
+                            var metaData = [MultiMediaMetaData]()
+                            for data in item.metadata {
+                                let metaDataItem = MultiMediaMetaData(keyword: data.key, value: data.value)
+                                metaData.append(metaDataItem)
+                            }
+                            let file = getMultiMedaiFile(fileName, metaData, item)
+                            
+                            //If file is valid
+                            if file.1 {
+                                files.append(file.0)
+                            } else {
+                                garbage.append(file.0)
+                            }
                         }
-                        let file = getMultiMedaiFile(fileName, metaData, item)
-                        
-                        //If file is valid
-                        if file.1 {
-                            files.append(file.0)
-                        } else {
-                            garbage.append(file.0)
-                        }
+                    } catch {
+                        //File existed, but json could not be decoded
+                        throw MMCliError.couldNotDecode
                     }
-                //File could not be parsed using .utf8
+                    
+                //File could not be parsed into a String using .utf8
                 } else {
                     throw MMCliError.couldNotParse
                 }
@@ -204,7 +235,6 @@ class LoadCommandHandler: MMCommandHandler {
         if garbage.count > 0 {
             handleGarbage(contents: garbage)
         }
-        
         return MMResultSet(files)
     }
     
@@ -217,7 +247,7 @@ class LoadCommandHandler: MMCommandHandler {
     ///
     /// - parameter : contents, the garbage (collection of MMFiles)
     ///
-    private static func handleGarbage(contents: [MMFile]) {
+    private func handleGarbage(contents: [MMFile]) {
         print("\n<------------------------ Import Error Log ------------------------>")
         print("\t\t\t\tThe following \(contents.count) file(s) were ignored:\n")
         for item in contents {
@@ -275,7 +305,7 @@ class LoadCommandHandler: MMCommandHandler {
     ///
     /// - returns: a tuple containing the file created, and a boolean value.
     ///
-    private static func getMultiMedaiFile(_ filename: String, _ metadata: [MultiMediaMetaData], _ item: Media) -> (MultiMediaFile, Bool) {
+    private func getMultiMedaiFile(_ filename: String, _ metadata: [MultiMediaMetaData], _ item: Media) -> (MultiMediaFile, Bool) {
         switch item.type {
         case MediaType.image:
             let file = ImageMultiMediaFile(metadata: metadata, filename: filename, path: item.fullpath, type: item.type)
@@ -294,47 +324,47 @@ class LoadCommandHandler: MMCommandHandler {
 }
 
 class ListCommandHandler: MMCommandHandler{
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
          throw MMCliError.unimplementedCommand
     }
    
 
 }
 class LastCommandHandler: MMCommandHandler{
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
     
     
 }
 class AddCommandHandler: MMCommandHandler{
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
     
     
 }
 class SetCommandHandler: MMCommandHandler{
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
 
 class DelCommandHandler: MMCommandHandler{
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
 class SaveCommandHandler: MMCommandHandler{
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
 class SaveSearchCommandHandler: MMCommandHandler{
-    static func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
@@ -347,11 +377,6 @@ class SaveSearchCommandHandler: MMCommandHandler{
 /// Implements the Singleton design pattern.
 ///
 class CommandLineParser {
-    
-    static let sharedInstance = CommandLineParser()
-    
-    private init() {}
-    
     func getCommand(inputString: String) -> String {
         if (inputString.contains("~")) {
            let path = inputString.replacingOccurrences(of: "~", with: NSString(string: "~").expandingTildeInPath)
