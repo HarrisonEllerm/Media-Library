@@ -17,6 +17,7 @@
 		6F7B61CD211C4669005017D0 /* MultiMediaCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F2CD2D4211944BE0098BE8D /* MultiMediaCollection.swift */; };
 		6F7B61CE211C4669005017D0 /* cli.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3CB3A9C20DB264200AF519E /* cli.swift */; };
 		6F7B61CF211C4669005017D0 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3161D2320D748F800EC97E8 /* main.swift */; };
+		6F7B6231211C62DD005017D0 /* MediaLibUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7B6230211C62DD005017D0 /* MediaLibUnitTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,8 +38,9 @@
 		4FF519782119A4BC00FFDD02 /* VideoMultiMediaFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoMultiMediaFile.swift; sourceTree = "<group>"; };
 		4FF5197A2119A50F00FFDD02 /* DocumentMultiMediaFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentMultiMediaFile.swift; sourceTree = "<group>"; };
 		4FF5197C2119A53F00FFDD02 /* AudioMultiMediaFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMultiMediaFile.swift; sourceTree = "<group>"; };
-		6F439BA9211BA7E90002A960 /* MediaLibraryManagerUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MediaLibraryManagerUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		6F7B61D4211C46EE005017D0 /* MediaLibraryUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MediaLibraryUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6F7B622E211C62DD005017D0 /* MediaLibUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MediaLibUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6F7B6230211C62DD005017D0 /* MediaLibUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLibUnitTests.swift; sourceTree = "<group>"; };
+		6F7B6232211C62DD005017D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6F9B73C72112F894003CDF8F /* MultiMediaMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaMetaData.swift; sourceTree = "<group>"; };
 		6F9B73C92112F945003CDF8F /* MultiMediaFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiMediaFile.swift; sourceTree = "<group>"; };
 		D3161D2020D748F800EC97E8 /* MediaLibraryManager */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MediaLibraryManager; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -48,14 +50,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		6F439BA6211BA7E90002A960 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		6F7B61D1211C46EE005017D0 /* Frameworks */ = {
+		6F7B622B211C62DD005017D0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -83,10 +78,20 @@
 			path = MultiMediaFileTypes;
 			sourceTree = "<group>";
 		};
+		6F7B622F211C62DD005017D0 /* MediaLibUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				6F7B6230211C62DD005017D0 /* MediaLibUnitTests.swift */,
+				6F7B6232211C62DD005017D0 /* Info.plist */,
+			);
+			path = MediaLibUnitTests;
+			sourceTree = "<group>";
+		};
 		D3161D1720D748F800EC97E8 = {
 			isa = PBXGroup;
 			children = (
 				D3161D2220D748F800EC97E8 /* MediaLibraryManager */,
+				6F7B622F211C62DD005017D0 /* MediaLibUnitTests */,
 				D3161D2120D748F800EC97E8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -95,8 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				D3161D2020D748F800EC97E8 /* MediaLibraryManager */,
-				6F439BA9211BA7E90002A960 /* MediaLibraryManagerUnitTests.xctest */,
-				6F7B61D4211C46EE005017D0 /* MediaLibraryUnitTests.xctest */,
+				6F7B622E211C62DD005017D0 /* MediaLibUnitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -118,38 +122,21 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		6F439BA8211BA7E90002A960 /* MediaLibraryManagerUnitTests */ = {
+		6F7B622D211C62DD005017D0 /* MediaLibUnitTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6F439BAE211BA7E90002A960 /* Build configuration list for PBXNativeTarget "MediaLibraryManagerUnitTests" */;
+			buildConfigurationList = 6F7B6233211C62DD005017D0 /* Build configuration list for PBXNativeTarget "MediaLibUnitTests" */;
 			buildPhases = (
-				6F439BA5211BA7E90002A960 /* Sources */,
-				6F439BA6211BA7E90002A960 /* Frameworks */,
-				6F439BA7211BA7E90002A960 /* Resources */,
+				6F7B622A211C62DD005017D0 /* Sources */,
+				6F7B622B211C62DD005017D0 /* Frameworks */,
+				6F7B622C211C62DD005017D0 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = MediaLibraryManagerUnitTests;
-			productName = MediaLibraryManagerUnitTests;
-			productReference = 6F439BA9211BA7E90002A960 /* MediaLibraryManagerUnitTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		6F7B61D3211C46EE005017D0 /* MediaLibraryUnitTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 6F7B61D9211C46EE005017D0 /* Build configuration list for PBXNativeTarget "MediaLibraryUnitTests" */;
-			buildPhases = (
-				6F7B61D0211C46EE005017D0 /* Sources */,
-				6F7B61D1211C46EE005017D0 /* Frameworks */,
-				6F7B61D2211C46EE005017D0 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = MediaLibraryUnitTests;
-			productName = MediaLibraryUnitTests;
-			productReference = 6F7B61D4211C46EE005017D0 /* MediaLibraryUnitTests.xctest */;
+			name = MediaLibUnitTests;
+			productName = MediaLibUnitTests;
+			productReference = 6F7B622E211C62DD005017D0 /* MediaLibUnitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		D3161D1F20D748F800EC97E8 /* MediaLibraryManager */ = {
@@ -179,10 +166,7 @@
 				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "Paul Crane";
 				TargetAttributes = {
-					6F439BA8211BA7E90002A960 = {
-						CreatedOnToolsVersion = 9.4.1;
-					};
-					6F7B61D3211C46EE005017D0 = {
+					6F7B622D211C62DD005017D0 = {
 						CreatedOnToolsVersion = 9.4.1;
 					};
 					D3161D1F20D748F800EC97E8 = {
@@ -203,21 +187,13 @@
 			projectRoot = "";
 			targets = (
 				D3161D1F20D748F800EC97E8 /* MediaLibraryManager */,
-				6F439BA8211BA7E90002A960 /* MediaLibraryManagerUnitTests */,
-				6F7B61D3211C46EE005017D0 /* MediaLibraryUnitTests */,
+				6F7B622D211C62DD005017D0 /* MediaLibUnitTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		6F439BA7211BA7E90002A960 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		6F7B61D2211C46EE005017D0 /* Resources */ = {
+		6F7B622C211C62DD005017D0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -227,17 +203,11 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		6F439BA5211BA7E90002A960 /* Sources */ = {
+		6F7B622A211C62DD005017D0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		6F7B61D0211C46EE005017D0 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				6F7B6231211C62DD005017D0 /* MediaLibUnitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,78 +231,42 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		6F439BAF211BA7E90002A960 /* Debug */ = {
+		6F7B6234211C62DD005017D0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 44Y6L594XB;
-				INFOPLIST_FILE = MediaLibraryManagerUnitTests/Info.plist;
+				INFOPLIST_FILE = MediaLibUnitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = nz.HarryEllerm.MediaLibraryManagerUnitTests;
+				PRODUCT_BUNDLE_IDENTIFIER = nz.HarryEllerm.MediaLibUnitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
-		6F439BB0211BA7E90002A960 /* Release */ = {
+		6F7B6235211C62DD005017D0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 44Y6L594XB;
-				INFOPLIST_FILE = MediaLibraryManagerUnitTests/Info.plist;
+				INFOPLIST_FILE = MediaLibUnitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = nz.HarryEllerm.MediaLibraryManagerUnitTests;
+				PRODUCT_BUNDLE_IDENTIFIER = nz.HarryEllerm.MediaLibUnitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-			};
-			name = Release;
-		};
-		6F7B61DA211C46EE005017D0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 44Y6L594XB;
-				INFOPLIST_FILE = MediaLibraryUnitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = nz.HarryEllerm.MediaLibraryUnitTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
-			};
-			name = Debug;
-		};
-		6F7B61DB211C46EE005017D0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 44Y6L594XB;
-				INFOPLIST_FILE = MediaLibraryUnitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = nz.HarryEllerm.MediaLibraryUnitTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
@@ -382,6 +316,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				"GCC_SYMBOLS_PRIVATE_EXTERN[arch=*]" = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -473,20 +408,11 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		6F439BAE211BA7E90002A960 /* Build configuration list for PBXNativeTarget "MediaLibraryManagerUnitTests" */ = {
+		6F7B6233211C62DD005017D0 /* Build configuration list for PBXNativeTarget "MediaLibUnitTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				6F439BAF211BA7E90002A960 /* Debug */,
-				6F439BB0211BA7E90002A960 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		6F7B61D9211C46EE005017D0 /* Build configuration list for PBXNativeTarget "MediaLibraryUnitTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				6F7B61DA211C46EE005017D0 /* Debug */,
-				6F7B61DB211C46EE005017D0 /* Release */,
+				6F7B6234211C62DD005017D0 /* Debug */,
+				6F7B6235211C62DD005017D0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
