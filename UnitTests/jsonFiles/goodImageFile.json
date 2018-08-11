@@ -1,0 +1,22 @@
+ [
+  {
+  "fullpath":"/somepath/goodImageFile.json",
+  "type":"image",
+  "metadata": {
+  "taken_on":"today",
+  "name":"good_image1",
+  "creator":"harry",
+  "resolution":"1000px"
+  }
+  },
+  {
+  "fullpath":"/somepath/goodImageFile.json",
+  "type":"image",
+  "metadata": {
+  "taken_on":"today",
+  "name":"good_image2",
+  "creator":"harry",
+  "resolution":"1000px"
+  }
+  }
+  ]

@@ -1,0 +1,21 @@
+[
+ {
+ "fullpath":"/somepath/badDocumentFile.json",
+ "type":"document",
+ "metadata": {
+ "taken_on":"today",
+ "name":"bad_document1",
+ "creator":"harry"
+ }
+ },
+ {
+ "fullpath":"/somepath/badDocumentFile.json",
+ "type":"document",
+ "metadata": {
+ "taken_on":"today",
+ "name":"bad_document2",
+ "creator":"harry"
+ }
+ }
+ ]
+

@@ -183,7 +183,7 @@ class UnimplementedCommandHandler: MMCommandHandler {
 ///Handle the 'load' command
 class LoadCommandHandler: MMCommandHandler {
     func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
-       
+        
         var files = [MMFile]()
         var garbage = [MMFile]()
         let decoder = JSONDecoder()

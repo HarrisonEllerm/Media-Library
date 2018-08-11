@@ -1,0 +1,22 @@
+ [
+  {
+  "fullpath":"/somepath/goodAudioFile.json",
+  "type":"audio",
+  "metadata": {
+  "taken_on":"today",
+  "name":"good_audio1",
+  "creator":"harry",
+  "runtime":"1.5"
+  }
+  },
+  {
+  "fullpath":"/somepath/goodAudioFile.json",
+  "type":"audio",
+  "metadata": {
+  "taken_on":"today",
+  "name":"good_audio2",
+  "runtime":"1.5",
+  "creator":"harry"
+  }
+  }
+  ]

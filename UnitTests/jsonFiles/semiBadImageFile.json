@@ -1,0 +1,20 @@
+[
+  {
+  "fullpath":"/somepath/semiBadImageFile.json",
+  "type":"image",
+  "metadata": {
+  "taken_on":"today",
+  "name":"semi_bad_image1",
+  "resolution":"1000px"
+  }
+  },
+  {
+  "fullpath":"/somepath/semiBadImageFile.json",
+  "type":"image",
+  "metadata": {
+  "taken_on":"today",
+  "name":"semi_bad_image2",
+  "creator":"harry"
+  }
+  }
+]

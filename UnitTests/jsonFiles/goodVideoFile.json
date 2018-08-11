@@ -1,0 +1,35 @@
+[
+ {
+ "fullpath":"/somepath/goodVideoFile.json",
+ "type":"video",
+ "metadata": {
+ "taken_on":"today",
+ "name":"good_video1",
+ "runtime":"1.5",
+ "resolution":"1000px",
+ "creator":"harry"
+ }
+ },
+ {
+ "fullpath":"/somepath/goodVideoFile.json",
+ "type":"video",
+ "metadata": {
+ "taken_on":"today",
+ "name":"good_video2",
+ "runtime":"1.5",
+ "creator":"harry",
+ "resolution":"1000px"
+ }
+ },
+ {
+ "fullpath":"/somepath/goodVideoFile.json",
+ "type":"video",
+ "metadata": {
+ "taken_on":"today",
+ "name":"good_video3",
+ "creator":"harry",
+ "resolution":"1000px",
+ "runtime":"1.5"
+ }
+ },
+ ]

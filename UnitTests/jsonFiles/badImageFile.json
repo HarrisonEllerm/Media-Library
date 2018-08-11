@@ -1,0 +1,18 @@
+[
+ {
+  "fullpath":"/somepath/badImageFile.json",
+  "type":"image",
+  "metadata": {
+	"taken_on":"today",
+	"name":"bad_image1"
+	}
+},
+{
+  "fullpath":"/somepath/badImageFile.json",
+  "type":"image",
+  "metadata": {
+	"taken_on":"today",
+	"name":"bad_image2"
+	}
+}
+]
