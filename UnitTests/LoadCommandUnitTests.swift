@@ -259,4 +259,38 @@ class LoadCommandUnitTests: XCTestCase {
                 XCTFail("Failed to find file in directory")
             }
         }
+    
+    
+    
+    func testMultipleInvalidAudioFiles() {
+        let fileUrl1 = testBundle.url(forResource: "goodAudioFile", withExtension: ".json", subdirectory: "jsonFiles")
+        let fileUrl2 = testBundle.url(forResource: "goodAudioFile2",withExtension: ".json", subdirectory: "jsonFiles")
+        
+        //We will look for these in the merged output
+        //to confirm that the files exist.
+        let filePath1_1 = "/somepath/badAudioFile1_1.json"
+        let filePath1_2 =  "/somepath/badAudioFile1_2.json"
+        let filePath2_1 = "/somepath/badAudioFile2_1.json"
+        let filePath2_2 = "/somepath/badAudioFile2_2.json"
+        
+        if let relPath = fileUrl1?.relativePath, let relPath2 = fileUrl2?.relativePath {
+            do {
+                let result = try loadHandler.handle([relPath, relPath2], last: MMResultSet())
+                XCTAssert(!result.contains(FileUrl: filePath1_1))
+                XCTAssert(!result.contains(FileUrl: filePath1_2))
+                XCTAssert(!result.contains(FileUrl: filePath2_1))
+                XCTAssert(!result.contains(FileUrl: filePath2_2))
+                
+            } catch(let error) {
+                XCTFail("An exception was raised \(error.localizedDescription)")
+            }
+        } else {
+            XCTFail("Failed to find file in directory")
+        }
+    }
+    
+    
+    
+    
+    
 }
