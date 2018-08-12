@@ -86,6 +86,21 @@ class MMResultSet{
     func hasResults() -> Bool{
         return self.results.count > 0
     }
+    
+    ///Determines if the MMResultSet contains a specific file.
+    /// -parameter FileURL: The url of the file that we are checking is in the MMResultSet.
+    
+    func contains(FileUrl : String) -> Bool{
+        for mmfile in results{
+            if mmfile.path == FileUrl{
+                return true
+            }
+        }
+        return false
+    }
+    
+    
+    
 }
 
 struct Media : Codable {

@@ -230,5 +230,45 @@ class LoadCommandUnitTests: XCTestCase {
             XCTFail("Failed to find file in directory")
         }
     }
+    /** Tests that multiple Audio Json files were loaded and merged correctly **/
+    
+    func testMultipleAudioFiles() {
+        let fileUrl1 = testBundle.url(forResource: "goodAudioFile", withExtension: ".json", subdirectory: "jsonFiles")
+        let fileurl2 = testBundle.url(forResource: "goodAudioFile2",withEtension: ".json", subdirectory: "jsonFiles")
+        
+        
+        let filePath1_1 ="/somepath/goodAudioFile1_1.json"
+        let filePath1_2 ="/somepath/goodAudioFile1_2.json"
+        let filePath2_1 ="/somepath/goodAudioFile2_1.json"
+        let filePath2_2 ="/somepath/goodAudioFile2_2.json"
+        
+        if let relPath = fileUrl1?.relativePath {
+            if let relPath2 = fileUrl2?.relativePath{
+                
+                do {
+                    let result = try loadHandler.handle([relPath], last: MMResultSet())
+                    let result2 = try loadHandler.handle([relpath2], last: MMResultSet())
+                    
+                    XCTAssert(result.contains(FileUrl: filePath1_1))
+                    XCTAssert(result.contains(FileUrl: filePath1_2))
+                    XCTAssert(result.contains(FileUrl: filePath2_1))
+                    XCTAssert(result.contains(FileUrl: filePath2_2))
+                    
+                    
+                } catch(let error) {
+                    XCTFail("An exception was raised \(error.localizedDescription)")
+                }
+            } else {
+                XCTFail("Failed to find file in directory")
+            }
+        }
+    }
+    
+    
+ 
+ //NOTE TO SELF: takes 2 jsonfiles and returns an MMResultset that contains multiple MMFILES
+    
+    
+    
 
 }
