@@ -1,6 +1,6 @@
 [
  {
- "fullpath":"/somepath/semiBadAudio.json",
+ "fullpath":"/somepath/semiBadAudio1.json",
  "type":"audio",
  "metadata": {
  "taken_on":"today",
@@ -9,7 +9,7 @@
  }
  },
  {
- "fullpath":"/somepath/semiBadAudio.json",
+ "fullpath":"/somepath/semiBadAudio2.json",
  "type":"audio",
  "metadata": {
  "taken_on":"today",

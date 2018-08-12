@@ -101,29 +101,13 @@ while let line = prompt("> "){
         print("Could not successfully parse the file, please check your JSON.")
     }catch MMCliError.couldNotDecode {
         print("Could not decode the json file. Please ensure it follows the expected format:")
-        print("[")
-        print(" {")
+        print("[ \n {\n")
         print("""
-                "fullpath": "/path/to/foobar.ext",
+                "fullpath": "/path/to/foobar.ext",\n"type": "image|video|document|audio",
               """)
         print("""
-                "type": "image|video|document|audio",
+                "metadata": {\n  "key1": "value1",\n  "key2": "value1",\n  "...": "..."
               """)
-        print("""
-                "metadata": {
-              """)
-        print("""
-                    "key1": "value1",
-              """)
-        print("""
-                    "key2": "value1",
-              """)
-        print("""
-                    "...": "...",
-              """)
-        print("    }")
-        print(" },")
-        print("...")
-        print("]")
+        print("    }\n },\n...\n]")
     }
 }

@@ -1,6 +1,6 @@
 [
  {
-  "fullpath":"/somepath/badImageFile.json",
+  "fullpath":"/somepath/badImageFile1.json",
   "type":"image",
   "metadata": {
 	"taken_on":"today",
@@ -8,7 +8,7 @@
 	}
 },
 {
-  "fullpath":"/somepath/badImageFile.json",
+  "fullpath":"/somepath/badImageFile2.json",
   "type":"image",
   "metadata": {
 	"taken_on":"today",

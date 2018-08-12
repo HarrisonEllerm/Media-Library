@@ -1,6 +1,6 @@
 [
  {
- "fullpath":"/somepath/badDocumentFile.json",
+ "fullpath":"/somepath/badDocumentFile1.json",
  "type":"document",
  "metadata": {
  "taken_on":"today",
@@ -9,7 +9,7 @@
  }
  },
  {
- "fullpath":"/somepath/badDocumentFile.json",
+ "fullpath":"/somepath/badDocumentFile2.json",
  "type":"document",
  "metadata": {
  "taken_on":"today",

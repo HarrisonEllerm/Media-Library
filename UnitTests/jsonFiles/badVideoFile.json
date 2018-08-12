@@ -1,6 +1,6 @@
  [
   {
-  "fullpath":"/somepath/badVideoFile.json",
+  "fullpath":"/somepath/badVideoFile1.json",
   "type":"video",
   "metadata": {
   "taken_on":"today",
@@ -10,7 +10,7 @@
   }
   },
   {
-  "fullpath":"/somepath/badVideoFile.json",
+  "fullpath":"/somepath/badVideoFile2.json",
   "type":"video",
   "metadata": {
   "taken_on":"today",
@@ -20,7 +20,7 @@
   }
   },
   {
-  "fullpath":"/somepath/badVideoFile.json",
+  "fullpath":"/somepath/badVideoFile3.json",
   "type":"video",
   "metadata": {
   "taken_on":"today",
