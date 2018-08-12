@@ -88,8 +88,7 @@ class MMResultSet{
     }
     
     ///Determines if the MMResultSet contains a specific file.
-    /// -parameter FileURL: The url of the file that we are checking is in the MMResultSet.
-    
+    /// - parameter FileURL: The url of the file that we are checking is in the MMResultSet.
     func contains(FileUrl : String) -> Bool{
         for mmfile in results{
             if mmfile.path == FileUrl{
@@ -98,9 +97,6 @@ class MMResultSet{
         }
         return false
     }
-    
-    
-    
 }
 
 struct Media : Codable {
@@ -159,17 +155,6 @@ class TestCommandHandler: MMCommandHandler{
     }
 }
 
-class LoadTestHandler {
-    
-    
-    
-    init() {
-        
-    }
-    
-}
-
-
 /// Handle the 'clear' command
 class ClearCommandHandler: MMCommandHandler{
     func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
@@ -202,11 +187,10 @@ class LoadCommandHandler: MMCommandHandler {
         var files = [MMFile]()
         var garbage = [MMFile]()
         let decoder = JSONDecoder()
-        let parser = CommandLineParser()
-        
+     
         for item in params {
             // Parse the command to replace '~' with home directory
-            let path = parser.getCommand(inputString: item)
+            let path = CommandLineParser.sharedInstance.getCommand(inputString: item)
             
             //Check that the file actually exists before continuing
             if FileManager.default.fileExists(atPath: path) {
@@ -392,6 +376,11 @@ class SaveSearchCommandHandler: MMCommandHandler{
 /// Implements the Singleton design pattern.
 ///
 class CommandLineParser {
+    
+    static let sharedInstance = CommandLineParser()
+    
+    private init() {}
+    
     func getCommand(inputString: String) -> String {
         if (inputString.contains("~")) {
            let path = inputString.replacingOccurrences(of: "~", with: NSString(string: "~").expandingTildeInPath)
