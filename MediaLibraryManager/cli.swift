@@ -97,6 +97,19 @@ class MMResultSet{
         }
         return false
     }
+    
+    ///Returns a File from the MMResult Set at the specified index.
+    /// - parameter Index: The index of the file we are looking to retrun.
+    
+    func getFileAtIndex(Index : Int ) -> MMFile?{
+        if Index < results.count-1{
+            return results[Index]
+
+        }else{
+            return nil
+        }
+    }
+    
 }
 
 struct Media : Codable {
@@ -336,13 +349,75 @@ class LastCommandHandler: MMCommandHandler{
     
     
 }
+
+
+
+// add 3 foo bar
+//  using the results of the previous list, add foo=bar to the file
+//  at index 3 in the list
+//
+// add 3 foo bar baz qux
+//  using the results of the previous list, add foo=bar and baz=qux
+//  to the file at index 3 in the list
+//
+
+
+
 class AddCommandHandler: MMCommandHandler{
+    
     func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+        
+        
+        last.showResults()
+       // var indexToFile = isStringAnInt(string: params[0])
+
+        
+        if let indexToFile = Int(params[0]) {
+        
+            // let args = Array(1...params.count)
+            print("Param count: \(params.count)")
+            let sequence = stride(from: 1, to:params.count, by:2)
+        
+            for item in sequence{
+                
+                print(params[item])
+
+                if var file = last.getFileAtIndex(Index: indexToFile) {
+                    
+                    
+                    //file.metadata.append(item)
+            
+                    if(item+1 < params.count){
+                        print(params[item+1])
+                        //file.metadata.append(item+1)
+                        let metadata = MultiMediaMetaData(keyword: params[item], value: params[item+1])
+                        file.metadata.append(metadata)
+                    }
+                    
+                    
+                    
+                }else{
+                    print("File could not be found")
+                    throw MMCliError.unimplementedCommand
+            }
+            }
+            last.showResults()
+
+         //throw MMCliError.unimplementedCommand
+        }
         throw MMCliError.unimplementedCommand
     }
     
+    func isStringAnInt(string: String) -> Bool {
+        return Int(string) != nil
+    }
     
 }
+
+
+
+
+
 class SetCommandHandler: MMCommandHandler{
     func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
