@@ -230,8 +230,9 @@ class LoadCommandUnitTests: XCTestCase {
             XCTFail("Failed to find file in directory")
         }
     }
+    
     /**
-        Tests that multiple Json files were loaded and merged correctly
+        Tests that multiple valid Json files were loaded and merged correctly
     */
     func testMultipleAudioFiles() {
         let fileUrl1 = testBundle.url(forResource: "goodAudioFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -247,11 +248,10 @@ class LoadCommandUnitTests: XCTestCase {
         if let relPath = fileUrl1?.relativePath, let relPath2 = fileUrl2?.relativePath {
                 do {
                     let result = try loadHandler.handle([relPath, relPath2], last: MMResultSet())
-                    XCTAssert(result.contains(FileUrl: filePath1_1))
-                    XCTAssert(result.contains(FileUrl: filePath1_2))
-                    XCTAssert(result.contains(FileUrl: filePath2_1))
-                    XCTAssert(result.contains(FileUrl: filePath2_2))
-                    
+                    XCTAssert(result.containsFile(fileUrl: filePath1_1))
+                    XCTAssert(result.containsFile(fileUrl: filePath1_2))
+                    XCTAssert(result.containsFile(fileUrl: filePath2_1))
+                    XCTAssert(result.containsFile(fileUrl: filePath2_2))
                 } catch(let error) {
                     XCTFail("An exception was raised \(error.localizedDescription)")
                 }
@@ -261,7 +261,9 @@ class LoadCommandUnitTests: XCTestCase {
         }
     
     
-    
+    /**
+        Tests that multiple invalid Json files were not loaded.
+     */
     func testMultipleInvalidAudioFiles() {
         let fileUrl1 = testBundle.url(forResource: "goodAudioFile", withExtension: ".json", subdirectory: "jsonFiles")
         let fileUrl2 = testBundle.url(forResource: "goodAudioFile2",withExtension: ".json", subdirectory: "jsonFiles")
@@ -276,10 +278,10 @@ class LoadCommandUnitTests: XCTestCase {
         if let relPath = fileUrl1?.relativePath, let relPath2 = fileUrl2?.relativePath {
             do {
                 let result = try loadHandler.handle([relPath, relPath2], last: MMResultSet())
-                XCTAssert(!result.contains(FileUrl: filePath1_1))
-                XCTAssert(!result.contains(FileUrl: filePath1_2))
-                XCTAssert(!result.contains(FileUrl: filePath2_1))
-                XCTAssert(!result.contains(FileUrl: filePath2_2))
+                XCTAssert(!result.containsFile(fileUrl: filePath1_1))
+                XCTAssert(!result.containsFile(fileUrl: filePath1_2))
+                XCTAssert(!result.containsFile(fileUrl: filePath2_1))
+                XCTAssert(!result.containsFile(fileUrl: filePath2_2))
                 
             } catch(let error) {
                 XCTFail("An exception was raised \(error.localizedDescription)")
