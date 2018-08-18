@@ -42,6 +42,17 @@ enum MMCliError: Error {
     
     /// Thrown if the add function could not locate the file
     case addCouldNotLocateFile(Int)
+    
+    ///Thrown if the File is not passed in
+    case saveMissingFileName
+    
+    ///Thrown if the directory does not exist
+    case saveDirectoryError
+    
+    ///Thrown if the encoder failed to encode the data
+    case couldNotEncodeException
+    
+   
 }
 
 /// Generate a friendly prompt and wait for the user to enter a line of input
@@ -107,6 +118,9 @@ class MMResultSet{
     func getAllFiles() -> [MMFile] {
         return self.results
     }
+    
+  
+    
 }
 
 struct Media : Codable {
@@ -147,7 +161,7 @@ class HelpCommandHandler: MMCommandHandler{
 \tadd <number> <key> <value> ...    - add some metadata to a file
 \tset <number> <key> <value> ...    - this is really a del followed by an add
 \tdel <number> <key> ...            - removes a metadata item from a file
-\tdel-all <key> ...                     - removes a metadata item from every file in the collection.
+\tdel-all <key> ...                 - removes a metadata item from every file in the collection.
 \tsave-search <filename>            - saves the last list results to a file
 \tsave <filename>                   - saves the whole collection to a file
 \tquit                              - quit the program
@@ -328,10 +342,38 @@ class LoadCommandHandler: MMCommandHandler {
 
 class ListCommandHandler: MMCommandHandler {
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
+        
         if lib.collection.isEmpty {
             print("The library is empty.")
         }
-        return MMResultSet(library.all())
+        
+        if params.count == 0{
+            return MMResultSet(library.all())
+        }
+        if params.count == 1{
+            let term = params[0]
+            let newlist = MultiMediaCollection()
+
+                for file in library.all(){
+                    if file.filename.contains(term) || file.path.contains(term) || String((file.type).rawValue).contains(term){
+                        if(!newlist.containsFile(fileUrl: file.path)){
+                            newlist.add(file: file)
+                        }
+                    }
+                    for mmdata in file.metadata{
+                        if mmdata.keyword.contains(term) || mmdata.value.contains(term){
+                            if(!newlist.containsFile(fileUrl: file.path)){
+                                newlist.add(file: file)
+                            }
+                        }
+                    }
+            }
+            return MMResultSet(newlist.all())
+        }
+            else{
+             print("else")
+             throw MMCliError.invalidParameters
+        }
     }
 }
 
@@ -483,14 +525,103 @@ class DelCommandHandler: MMCommandHandler{
 }
 
 class SaveCommandHandler: MMCommandHandler{
+    
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        throw MMCliError.unimplementedCommand
+        var array = [Media]()
+        
+        for file in library.all(){
+            var meta = [String:String]()
+            for item in file.metadata {
+                meta.updateValue(item.keyword, forKey: item.value)
+            }
+            let mediaStruct = Media(fullpath: file.path, type: file.type, metadata: meta)
+            array.append(mediaStruct)
+        }
+
+        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first{
+            var filename = params[0]
+            if params.count == 1{
+                if !filename.contains(".json"){
+                    filename.append(".json")
+                }
+             
+                let directory = documentsURL.appendingPathComponent(filename)
+                    do {
+                        let jsonEncoder = JSONEncoder()
+                        let jsonData = try jsonEncoder.encode(array)
+                        
+                        //let data = try JSONSerialization.data(withJSONObject: array, options: [])
+                        try jsonData.write(to: directory, options: [])
+                        print("Successfully saved the file.")
+                        
+                    } catch {
+                        
+                        throw MMCliError.couldNotEncodeException
+                    }
+                }else{
+                 throw MMCliError.saveMissingFileName
+                }
+            
+            
+        }else{
+             throw MMCliError.saveDirectoryError       }
+        
+       // throw MMCliError.saveMissingFileName
+        return MMResultSet()
     }
+
 }
 
 class SaveSearchCommandHandler: MMCommandHandler{
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        throw MMCliError.unimplementedCommand
+         var array = [Media]()
+        if params.count == 1 {
+            let seq = stride(from: 0, to: last.getAllFiles().count, by: 1)
+            for item in seq {
+                if let file = last.getFileAtIndex(index: item) {
+                    print("FILENAME = \(file.filename)")
+                    var meta = [String:String]()
+                    for item in file.metadata {
+                        
+                        meta.updateValue(item.keyword, forKey: item.value)
+                    }
+                    let mediaStruct = Media(fullpath: file.path, type: file.type, metadata: meta)
+                    array.append(mediaStruct)
+                }
+              
+            }
+            print("ARRAY \(array.description)")
+            if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first{
+                var filename = params[0]
+                
+                    if !filename.contains(".json"){
+                        filename.append(".json")
+                    }
+                    
+                    let directory = documentsURL.appendingPathComponent(filename)
+                    do {
+                        let jsonEncoder = JSONEncoder()
+                        let jsonData = try jsonEncoder.encode(array)
+                        
+                        //let data = try JSONSerialization.data(withJSONObject: array, options: [])
+                        try jsonData.write(to: directory, options: [])
+                        print("Successfully saved the file.")
+                        
+                    } catch {
+                        
+                        throw MMCliError.couldNotEncodeException
+                    }
+                
+            }else{
+                throw MMCliError.saveDirectoryError       }
+        
+        }else{
+            throw MMCliError.saveMissingFileName
+        }
+        
+        
+        return MMResultSet()
+        
     }
 }
 

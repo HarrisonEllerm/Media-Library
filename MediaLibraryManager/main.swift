@@ -125,5 +125,12 @@ while let line = prompt("> "){
               """)
     }catch MMCliError.addCouldNotLocateFile(let indexToFile) {
         print("Could not locate file at \(indexToFile) to add metadata to.")
+    }catch MMCliError.saveMissingFileName{
+        print("Could not find the name of the file.")
+    }catch MMCliError.saveDirectoryError{
+        print("Could not find the directory that has been specified.")
+        
+    }catch MMCliError.couldNotEncodeException{
+        print("Could not encode the data.")
     }
 }
