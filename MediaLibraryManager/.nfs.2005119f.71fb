@@ -38,7 +38,7 @@ enum MMCliError: Error {
     case couldNotDecode
     
     /// Thrown if the format for the add function is invalid
-    case addDelFormatIncorrect
+    case addFormatIncorrect
     
     /// Thrown if the add function could not locate the file
     case addCouldNotLocateFile(Int)
@@ -360,7 +360,7 @@ class AddCommandHandler: MMCommandHandler{
                 }
             }
         } else {
-            throw MMCliError.addDelFormatIncorrect
+            throw MMCliError.addFormatIncorrect
         }
         return MMResultSet(library.all())
     }
@@ -404,7 +404,7 @@ class DelAllCommandHandler: MMCommandHandler{
             
         } else {
             //TODO MAKE DEL-ALL EXCEPTION
-            throw MMCliError.addDelFormatIncorrect
+            throw MMCliError.addFormatIncorrect
         }
         return MMResultSet(library.all())
     }
@@ -441,7 +441,7 @@ class DelCommandHandler: MMCommandHandler{
             }
         } else {
             //TODO MAKE DEL FORMAT INCORRECT EXCEPTION
-            throw MMCliError.addDelFormatIncorrect
+            throw MMCliError.addFormatIncorrect
         }
         return MMResultSet(library.all())
     }

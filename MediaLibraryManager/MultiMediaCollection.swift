@@ -47,9 +47,15 @@ class MultiMediaCollection: MMCollection, MMCollectionDeleter {
     }
     
     func removeMetadataWithKey(key: String, file: MMFile) -> Bool {
-        
-        
-        
+        if let upCastFile = file as? MultiMediaFile {
+            let success = upCastFile.deleteMetaData(key)
+            if success {
+                self.replaceFile(file, upCastFile)
+                //Metadata successfully deleted
+                return true
+            }
+        }
+        //Could not delete metadata (might not exist)
         return false
     }
     

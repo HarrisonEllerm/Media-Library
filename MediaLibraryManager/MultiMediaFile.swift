@@ -50,4 +50,44 @@ class MultiMediaFile: MMFile {
         }
         return false
     }
+    
+    func deleteMetaData(_ key: String) -> Bool {
+        switch self.type {
+        case MediaType.image:
+            if key != "creator" && key != "resolution" {
+               return deleteKey(key)
+            } else {
+                return false
+            }
+        case MediaType.audio:
+            if key != "creator" && key != "runtime" {
+                return deleteKey(key)
+            } else {
+                return false
+            }
+        case MediaType.document:
+            if key != "creator" {
+                return deleteKey(key)
+            } else {
+                return false
+            }
+        case MediaType.video:
+            if key != "creator" && key != "resolution" && key != "runtime" {
+                return deleteKey(key)
+            } else {
+                return false
+            }
+        }
+    }
+    
+    private func deleteKey(_ key: String) -> Bool {
+        for index in 0..<metadata.count {
+            if metadata[index].keyword == key{
+                metadata.remove(at: index)
+                return true
+                
+            }
+        }
+        return false
+    }
 }

@@ -61,6 +61,9 @@ while let line = prompt("> "){
         case "del":
             last = try DelCommandHandler().handle(parts, last:last, library: lib)
             break
+        case "del-all":
+            last = try DelAllCommandHandler().handle(parts, last:last, library:lib)
+            break
             
         case "save":
             last = try SaveCommandHandler().handle(parts, last:last, library: lib)
@@ -114,7 +117,7 @@ while let line = prompt("> "){
                 "metadata": {\n  "key1": "value1",\n  "key2": "value1",\n  "...": "..."
               """)
         print("    }\n },\n...\n]")
-    }catch MMCliError.addFormatIncorrect {
+    }catch MMCliError.addDelFormatIncorrect {
         print("Could not add/del the metadata without specifying index i.e.")
         print("""
                     > 'add 3 foo bar'
