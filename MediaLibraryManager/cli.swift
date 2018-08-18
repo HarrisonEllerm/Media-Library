@@ -182,6 +182,7 @@ class UnimplementedCommandHandler: MMCommandHandler {
     }
 }
 
+//TO DO -- Implement a check too make sure that we do not load in duplicate files.
 ///Handle the 'load' command
 class LoadCommandHandler: MMCommandHandler {
     
@@ -366,11 +367,45 @@ class AddCommandHandler: MMCommandHandler{
     }
 }
 
+//del followed by an add
 class SetCommandHandler: MMCommandHandler{
+    private let minParams = 3
+    
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        throw MMCliError.unimplementedCommand
-    }
+        //Check format before we even try to do anything
+        if CommandLineParser.sharedInstance.validFormat(params, minParams) {
+            //This is safe as already validated it exists
+            let indexToFile = Int(params[0])!
+            let seq = stride(from: 1, to: params.count, by: 2)
+            for item in seq {
+                if let file = last.getFileAtIndex(index: indexToFile) {
+                    if (item < params.count) {
+                        let keyToDelete = params[item]
+                            let result = library.removeMetadataWithKey(key: keyToDelete, file: file)
+                            if result {
+                                let meta = MultiMediaMetaData(
+                                    keyword: params[item].trimmingCharacters(in: .whitespaces),
+                                    value: params[item+1].trimmingCharacters(in: .whitespaces))
+                                    library.add(metadata: meta, file: file)
+                                } else {
+                                    print("<-------------------------- Set Error Log ------------------------->")
+                                    print("     > Could not modify key '\(params[item])', key does not exist.")
+                                    print("<------------------------------------------------------------------>")
+                                }
+                            }
+                        } else {
+                            throw MMCliError.addCouldNotLocateFile(indexToFile)
+                        }
+                    }
+                } else {
+                    //TODO MAKE DEL FORMAT INCORRECT EXCEPTION
+                    throw MMCliError.addDelFormatIncorrect
+                }
+                return MMResultSet(library.all())
+            }
 }
+
+
 class DelAllCommandHandler: MMCommandHandler{
   
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
