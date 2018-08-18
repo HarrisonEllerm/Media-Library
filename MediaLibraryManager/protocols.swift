@@ -46,6 +46,7 @@ protocol MMFile: CustomStringConvertible{
     var type: MediaType {get set}
 }
 
+
 ///
 /// Protocol to represent metadata for a media file
 ///
@@ -67,6 +68,7 @@ protocol MMMetadata: CustomStringConvertible{
     var keyword: String {get set}
     var value: String {get set}
 }
+
 
 /// The main functions of the media metadata collection.
 protocol MMCollection:CustomStringConvertible {
@@ -119,6 +121,20 @@ protocol MMCollection:CustomStringConvertible {
     /// A list of all the metadata associated with the item's keyword, possibly
     /// an empty list.
     func search(item: MMMetadata) -> [MMFile]
+}
+
+protocol MMCollectionDeleter: MMCollection {
+    
+    ///
+    /// Removes a particular instance of metadata from a file
+    ///
+    /// - Parameters:
+    /// - key: The key of the metadata to delete.
+    /// - Returns:
+    ///   A boolean that clarifies if the opperation was sucessful or
+    ///   not.
+    ///
+    func removeMetadataWithKey(key: String, file: MMFile) -> Bool
 }
 
 ///

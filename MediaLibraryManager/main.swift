@@ -9,7 +9,7 @@
 import Foundation
 
 // TODO create your instance of your library here
-var library:MMCollection? = MultiMediaCollection()
+var lib = MultiMediaCollection()
 var last = MMResultSet()
 
 // The while-loop below implements a basic command line interface. Some
@@ -34,57 +34,62 @@ var last = MMResultSet()
 while let line = prompt("> "){
     var command : String = ""
     var parts = line.split(separator: " ").map({String($0)})
+    var showLast = true
     
     do{
         guard parts.count > 0 else {
             throw MMCliError.noCommand
         }
         command = parts.removeFirst();
+       
         switch(command){
-        case "load":
-            last = try LoadCommandHandler().handle(parts, last:last)
-            break
-        
-        case "list":
-            last = try ListCommandHandler().handle(parts, last:last)
             
+        case "load":
+            last = try LoadCommandHandler().handle(parts, last:last, library: lib)
+            
+        case "list":
+            last = try ListCommandHandler().handle(parts, last:last, library: lib)
+        
         case "add":
-            last = try AddCommandHandler().handle(parts, last:last)
+            last = try AddCommandHandler().handle(parts, last:last, library: lib)
             break
         
         case "set":
-            last = try SetCommandHandler().handle(parts, last: last)
+            last = try SetCommandHandler().handle(parts, last: last, library: lib)
             break
         
         case "del":
-            last = try DelCommandHandler().handle(parts, last:last)
+            last = try DelCommandHandler().handle(parts, last:last, library: lib)
             break
             
         case "save":
-            last = try SaveCommandHandler().handle(parts, last:last)
+            last = try SaveCommandHandler().handle(parts, last:last, library: lib)
             break
             
         case "save-search":
-            last = try SaveSearchCommandHandler().handle(parts, last:last)
+            last = try SaveSearchCommandHandler().handle(parts, last:last, library: lib)
             break
             
         case "help":
-            last = try HelpCommandHandler().handle(parts, last:last)
+            last = try HelpCommandHandler().handle(parts, last:last, library: lib)
+            showLast = false
             break
         
         case "clear":
-            last = try ClearCommandHandler().handle(parts, last:last)
+            last = try ClearCommandHandler().handle(parts, last:last, library: lib)
             break
             
         case "quit":
-            last = try QuitCommandHandler().handle(parts, last:last)
-            // so we don't show the results of the previous command
-            // (before the quit), we'll continue here instead of breaking
+            last = try QuitCommandHandler().handle(parts, last:last, library: lib)
             continue
+            
         default:
             throw MMCliError.unknownCommand
         }
-        last.showResults();
+        if showLast {
+            last.showResults()
+        }
+        
     }catch MMCliError.noCommand {
         print("No command given -- see \"help\" for details.")
     }catch MMCliError.unknownCommand {
@@ -109,5 +114,13 @@ while let line = prompt("> "){
                 "metadata": {\n  "key1": "value1",\n  "key2": "value1",\n  "...": "..."
               """)
         print("    }\n },\n...\n]")
+    }catch MMCliError.addFormatIncorrect {
+        print("Could not add/del the metadata without specifying index i.e.")
+        print("""
+                    > 'add 3 foo bar'
+                    > 'del 0 foo'
+              """)
+    }catch MMCliError.addCouldNotLocateFile(let indexToFile) {
+        print("Could not locate file at \(indexToFile) to add metadata to.")
     }
 }

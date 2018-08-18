@@ -34,9 +34,14 @@ enum MMCliError: Error {
     /// Thrown if the file being read cannot be parsed
     case couldNotParse
     
-    // Thrown if the json format of the file being read is wrong
+    /// Thrown if the json format of the file being read is wrong
     case couldNotDecode
     
+    /// Thrown if the format for the add function is invalid
+    case addFormatIncorrect
+    
+    /// Thrown if the add function could not locate the file
+    case addCouldNotLocateFile(Int)
 }
 
 /// Generate a friendly prompt and wait for the user to enter a line of input
@@ -87,29 +92,21 @@ class MMResultSet{
         return self.results.count > 0
     }
     
-    ///Determines if the MMResultSet contains a specific file.
-    /// - parameter FileURL: The url of the file that we are checking is in the MMResultSet.
-    func contains(FileUrl : String) -> Bool{
-        for mmfile in results{
-            if mmfile.path == FileUrl{
-                return true
-            }
-        }
-        return false
-    }
-    
     ///Returns a File from the MMResult Set at the specified index.
     /// - parameter Index: The index of the file we are looking to retrun.
-    
-    func getFileAtIndex(Index : Int ) -> MMFile?{
-        if Index < results.count-1{
-            return results[Index]
-
+    func getFileAtIndex(index: Int) -> MMFile? {
+        if index < results.count{
+            return results[index]
         }else{
             return nil
         }
     }
     
+    ///Returns all of the files stored within set.
+    /// - returns: an array of MMFile
+    func getAllFiles() -> [MMFile] {
+        return self.results
+    }
 }
 
 struct Media : Codable {
@@ -133,7 +130,7 @@ protocol MMCommandHandler{
     /// - Throws: one of the `MMCliError` exceptions
     ///
     /// - returns: an instance of `MMResultSet`
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet;
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet;
     
 }
 
@@ -141,7 +138,7 @@ protocol MMCommandHandler{
 /// - Attention: There are some examples of the commands in the source code
 /// comments
 class HelpCommandHandler: MMCommandHandler{
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet{
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet{
         print("""
 \thelp                              - this text
 \tload <filename> ...               - load file into the collection
@@ -154,33 +151,24 @@ class HelpCommandHandler: MMCommandHandler{
 \tsave <filename>                   - saves the whole collection to a file
 \tquit                              - quit the program
 """)
-        return MMResultSet()
-    }
-}
-
-class TestCommandHandler: MMCommandHandler{
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet{
-        print("""
-\thelp                              - load test
-\tquit testing                      - exit testing mode
-""")
-        return MMResultSet()
+        return last
     }
 }
 
 /// Handle the 'clear' command
+/// Just an easy way to create some clear space on the console
 class ClearCommandHandler: MMCommandHandler{
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         for _ in 1...100 {
             puts(" ")
         }
-        return MMResultSet()
+        return last
     }
 }
 
 /// Handle the 'quit' command
 class QuitCommandHandler : MMCommandHandler {
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         // you may want to prompt if the previous result set hasn't been saved...
         exit(0)
     }
@@ -188,18 +176,19 @@ class QuitCommandHandler : MMCommandHandler {
 
 // All the other commands are unimplemented
 class UnimplementedCommandHandler: MMCommandHandler {
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
 ///Handle the 'load' command
 class LoadCommandHandler: MMCommandHandler {
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
-        
-        var files = [MMFile]()
+    
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
+    
         var garbage = [MMFile]()
         let decoder = JSONDecoder()
+        var validFileCount = 0
      
         for item in params {
             // Parse the command to replace '~' with home directory
@@ -210,7 +199,6 @@ class LoadCommandHandler: MMCommandHandler {
                 
                 if let data = try String(contentsOfFile: path).data(using: .utf8) {
                     
-                    //need to safeguard this
                     do {
                         let media : [Media] = try decoder.decode([Media].self, from: data)
                         for item in media {
@@ -225,7 +213,8 @@ class LoadCommandHandler: MMCommandHandler {
                             
                             //If file is valid
                             if file.1 {
-                                files.append(file.0)
+                                library.add(file: file.0)
+                                validFileCount += 1
                             } else {
                                 garbage.append(file.0)
                             }
@@ -234,7 +223,6 @@ class LoadCommandHandler: MMCommandHandler {
                         //File existed, but json could not be decoded
                         throw MMCliError.couldNotDecode
                     }
-                    
                 //File could not be parsed into a String using .utf8
                 } else {
                     throw MMCliError.couldNotParse
@@ -244,25 +232,26 @@ class LoadCommandHandler: MMCommandHandler {
                 throw MMCliError.invalidFile(path)
             }
         }
-        if garbage.count > 0 {
-            handleGarbage(contents: garbage)
+        print("Successfully imported \(validFileCount) file(s)")
+        if(garbage.count > 0) {
+           handleGarbage(garbage)
         }
-        return MMResultSet(files)
+        return MMResultSet()
     }
     
     ///
     /// This function handles files which were not added to the result
     /// set as they violated the minimum metadata requirements for that
-    /// particular file type. It handles the "Garbage" by displaying to
+    /// particular file type. It handles the "garbage" by displaying to
     /// the user the file(s) that were not returned as part of the result
     /// set and why they were not returned.
     ///
     /// - parameter : contents, the garbage (collection of MMFiles)
     ///
-    private func handleGarbage(contents: [MMFile]) {
-        print("\n<------------------------ Import Error Log ------------------------>")
-        print("\t\t\t\tThe following \(contents.count) file(s) were ignored:\n")
-        for item in contents {
+    func handleGarbage(_ garbage: [MMFile]) {
+        print("<------------------------ Import Error Log ------------------------>")
+        print("\tThe following file(s) were ignored as part of the import:\n")
+        for item in garbage {
             print("\(item.path):")
             switch item.type {
                 
@@ -303,7 +292,7 @@ class LoadCommandHandler: MMCommandHandler {
                     print()
                 }
         }
-        print("<------------------------------------------------------------------>\n")
+        print("<------------------------------------------------------------------>")
     }
     
     ///
@@ -335,118 +324,99 @@ class LoadCommandHandler: MMCommandHandler {
     }
 }
 
-class ListCommandHandler: MMCommandHandler{
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
-         throw MMCliError.unimplementedCommand
+class ListCommandHandler: MMCommandHandler {
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
+        if lib.collection.isEmpty {
+            print("The library is empty.")
+        }
+        return MMResultSet(library.all())
     }
-   
-
 }
-class LastCommandHandler: MMCommandHandler{
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
-        throw MMCliError.unimplementedCommand
-    }
-    
-    
-}
-
-
-
-// add 3 foo bar
-//  using the results of the previous list, add foo=bar to the file
-//  at index 3 in the list
-//
-// add 3 foo bar baz qux
-//  using the results of the previous list, add foo=bar and baz=qux
-//  to the file at index 3 in the list
-//
-
-
 
 class AddCommandHandler: MMCommandHandler{
     
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
-        
-        
-        last.showResults()
-       // var indexToFile = isStringAnInt(string: params[0])
-
-        
-        if let indexToFile = Int(params[0]) {
-        
-            // let args = Array(1...params.count)
-            print("Param count: \(params.count)")
-            let sequence = stride(from: 1, to:params.count, by:2)
-        
-            for item in sequence{
-                
-                print(params[item])
-
-                if var file = last.getFileAtIndex(Index: indexToFile) {
-                    
-                    
-                    //file.metadata.append(item)
-            
-                    if(item+1 < params.count){
-                        print(params[item+1])
-                        //file.metadata.append(item+1)
-                        let metadata = MultiMediaMetaData(keyword: params[item], value: params[item+1])
-                        file.metadata.append(metadata)
+    //Minimum number of params acceptable for command
+    private let minParams = 3
+    
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
+    //Check format before we even try to do anything
+        if CommandLineParser.sharedInstance.validFormat(params, minParams) {
+            //This is safe as already validated it exists
+            let indexToFile = Int(params[0])!
+            let seq = stride(from: 2, to: params.count, by: 2)
+            for item in seq {
+                if let file = last.getFileAtIndex(index: indexToFile) {
+                    if (item < params.count) {
+                        let meta = MultiMediaMetaData(
+                            keyword: params[item-1].trimmingCharacters(in: .whitespaces),
+                            value: params[item].trimmingCharacters(in: .whitespaces))
+                        library.add(metadata: meta, file: file)
                     }
-                    
-                    
-                    
-                }else{
-                    print("File could not be found")
-                    throw MMCliError.unimplementedCommand
+                } else {
+                    throw MMCliError.addCouldNotLocateFile(indexToFile)
+                }
             }
-            }
-            last.showResults()
-
-         //throw MMCliError.unimplementedCommand
+        } else {
+            throw MMCliError.addFormatIncorrect
         }
-        throw MMCliError.unimplementedCommand
+        return MMResultSet(library.all())
     }
-    
-    func isStringAnInt(string: String) -> Bool {
-        return Int(string) != nil
-    }
-    
 }
 
-
-
-
-
 class SetCommandHandler: MMCommandHandler{
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
 
 class DelCommandHandler: MMCommandHandler{
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
-        throw MMCliError.unimplementedCommand
+    //Minimum number of params acceptable for command
+    private let minParams = 2
+    
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
+        //Check format before we even try to do anything
+        if CommandLineParser.sharedInstance.validFormat(params, minParams) {
+            //This is safe as already validated it exists
+            let indexToFile = Int(params[0])!
+            let seq = stride(from: 1, to: params.count, by: 1)
+            for item in seq {
+                if let file = last.getFileAtIndex(index: indexToFile) {
+                    if (item < params.count) {
+                        let keyToDelete = params[item]
+                        print("Key To Delete: \(params[item])")
+                        //library.removeMetadataWithKey(key: keyToDelete, file: file)`
+                    }
+                    
+                    
+                    //library.remove(metadata: <#T##MMMetadata#>)?
+                    
+                } else {
+                    throw MMCliError.addCouldNotLocateFile(indexToFile)
+                }
+            }
+        } else {
+            throw MMCliError.addFormatIncorrect
+        }
+        return MMResultSet(library.all())
     }
 }
 
 class SaveCommandHandler: MMCommandHandler{
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
 class SaveSearchCommandHandler: MMCommandHandler{
-    func handle(_ params: [String], last: MMResultSet) throws -> MMResultSet {
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
 ///
-/// A class used to allow quick parsing of command line
-/// arguments, replacing paths with a '~' character with
-/// the users home directory.
+/// A class that contains various convenience functions
+/// used to handle user command line input.
 ///
 /// Implements the Singleton design pattern.
 ///
@@ -464,7 +434,24 @@ class CommandLineParser {
             return inputString
         }
     }
+    
+    /**
+     Quick sanity check used for some commands,
+     that makes sure the first item is a number and that
+     there is minimum number of arguments provided.
+     
+        i.e. add '0 foo bar'
+        i.e. set '0 foo bar'
+     
+     - parameter : params, the parameters passed in as args to add.
+     - returns: a boolean representing if the format of the args is correct.
+     */
+    func validFormat(_ params: [String], _ numberOfParams: Int) -> Bool {
+        //Minimum amount of args is 3 and first is a number (file number)
+        if params.count >= numberOfParams && (Int(params[0]) != nil) {
+            return true
+        }
+        return false
+    }
+    
 }
-
-
-

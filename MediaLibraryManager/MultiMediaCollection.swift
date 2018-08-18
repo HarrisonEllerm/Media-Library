@@ -8,8 +8,9 @@
 
 import Foundation
 
-class MultiMediaCollection: MMCollection {
+class MultiMediaCollection: MMCollection, MMCollectionDeleter {
     
+    //MAYBE STATIC? TODO
     var collection : [MMFile]
     var count : Int
     
@@ -23,12 +24,33 @@ class MultiMediaCollection: MMCollection {
         count += 1
     }
     
+    /**
+        Adds metadata to a file, and then updates
+        that file within the collection.
+     
+        - parameter : metadata, the metadata to be added.
+        - parameter : file, the file that the metadata is to be added to.
+     
+        TODO: handle errors/find better way
+    */
     func add(metadata: MMMetadata, file: MMFile) {
-        
+        if let upCastFile = file as? MultiMediaFile {
+            upCastFile.metadata.append(metadata)
+            self.replaceFile(file, upCastFile)
+        } else {
+            //Throw some kind of exception?
+        }
     }
     
     func remove(metadata: MMMetadata) {
         
+    }
+    
+    func removeMetadataWithKey(key: String, file: MMFile) -> Bool {
+        
+        
+        
+        return false
     }
     
     func search(term: String) -> [MMFile] {
@@ -36,7 +58,7 @@ class MultiMediaCollection: MMCollection {
     }
     
     func all() -> [MMFile] {
-        return [MMFile]()
+        return collection
     }
     
     func search(item: MMMetadata) -> [MMFile] {
@@ -50,3 +72,33 @@ class MultiMediaCollection: MMCollection {
     }
 
 }
+
+extension MultiMediaCollection {
+    
+    func containsFile(fileUrl: String) -> Bool {
+        return self.collection.contains(where: { (mmfile) -> Bool in
+            if mmfile.path == fileUrl {
+                return true
+            }
+            return false
+        })
+    }
+    
+    func getFile(fileUrl: String) -> MMFile? {
+        for item in self.collection {
+            if item.path == fileUrl {
+                return item
+            }
+        }
+        return nil
+    }
+    
+    func replaceFile(_ file: MMFile, _ upCastFile: MultiMediaFile) {
+        for var item in self.collection {
+            if item.path == file.path {
+                item = upCastFile
+            }
+        }
+    }
+}
+

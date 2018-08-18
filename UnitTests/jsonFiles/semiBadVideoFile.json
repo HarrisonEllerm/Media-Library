@@ -1,0 +1,33 @@
+ [
+  {
+  "fullpath":"/somepath/semiBadVideoFile1.json",
+  "type":"video",
+  "metadata": {
+  "taken_on":"today",
+  "name":"good_video1",
+  "resolution":"1000px",
+  "creator":"harry"
+  }
+  },
+  {
+  "fullpath":"/somepath/semiBadVideoFile2.json",
+  "type":"video",
+  "metadata": {
+  "taken_on":"today",
+  "name":"good_video2",
+  "runtime":"1.5",
+  "resolution":"1000px"
+  }
+  },
+  {
+  "fullpath":"/somepath/semiBadVideoFile3.json",
+  "type":"video",
+  "metadata": {
+  "taken_on":"today",
+  "name":"good_video3",
+  "creator":"harry",
+  "runtime":"1.5"
+  }
+  },
+  ]
+

@@ -39,7 +39,6 @@ class AudioMultiMediaFile: MultiMediaFile {
     }
     
     func getErrors() -> [String] {
-        precondition(!isValid())
         var errors = [String]()
         if creatorMissing {
             errors.append("'creator' missing")

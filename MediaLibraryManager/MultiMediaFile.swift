@@ -20,7 +20,7 @@ class MultiMediaFile: MMFile {
     
     var description: String {
         get {
-            return "MultiMediaFile[Path: \(path), Filename: \(filename), MediaType: \(type), Metadata: \(metadata)"
+            return "MultiMediaFile[Path: \(path), Filename: \(filename), MediaType: \(type), Metadata: \(metadata)]"
         }
     }
     
@@ -29,5 +29,25 @@ class MultiMediaFile: MMFile {
         self.filename = filename
         self.path = path
         self.type = type
+    }
+    
+    /**
+        A function used primarily when testing to ensure
+        that returns a boolean representing if the file
+        contains a metadata key value pair or not.
+     
+        - parameter : meta, the metadata that is being searched for
+        - returns: a boolean representing if it was found or not.
+    */
+    func containsMetaData(meta: MultiMediaMetaData) -> Bool {
+        //Safe downcast
+        let downcastedMetaData = meta as MMMetadata
+        for item in metadata {
+            if item.keyword == downcastedMetaData.keyword &&
+                item.value == downcastedMetaData.value {
+                return true
+            }
+        }
+        return false
     }
 }

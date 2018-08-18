@@ -38,8 +38,7 @@ class ImageMultiMediaFile: MultiMediaFile {
         return valid
     }
     
-    func getErrors() -> [String] {
-        precondition(!isValid())
+    func getErrors() -> [String] { 
         var errors = [String]()
         if creatorMissing {
             errors.append("'creator' missing")
