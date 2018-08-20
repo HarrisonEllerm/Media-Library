@@ -10,8 +10,9 @@ import Foundation
 
 class MultiMediaCollection: MMCollection, MMCollectionDeleter {
     
-    //MAYBE STATIC? TODO
+    //The collection of files
     var collection : [MMFile]
+    //Count of files within the collection
     var count : Int
     
     init() {
@@ -19,6 +20,11 @@ class MultiMediaCollection: MMCollection, MMCollectionDeleter {
         count = 0
     }
     
+    /**
+        Adds a file to the collection.
+     
+         - parameter : file, the file to be added.
+    */
     func add(file: MMFile) {
         collection.append(file)
         count += 1
@@ -31,21 +37,46 @@ class MultiMediaCollection: MMCollection, MMCollectionDeleter {
         - parameter : metadata, the metadata to be added.
         - parameter : file, the file that the metadata is to be added to.
      
-        TODO: handle errors/find better way
     */
     func add(metadata: MMMetadata, file: MMFile) {
         if let upCastFile = file as? MultiMediaFile {
             upCastFile.metadata.append(metadata)
             self.replaceFile(file, upCastFile)
-        } else {
-            //Throw some kind of exception?
         }
     }
     
+    /**
+        Removes metadata from the collection
+        as a whole.
+     
+        Unused due to removeMetadataWithKey behaving in a more
+        useful way for our specific implementation.
+        Perhaps eventually the MMCollection protocol could be
+        revised to not include this (in our implementation).
+     
+         - parameter : metadata, the metadata to be removed.
+    */
     func remove(metadata: MMMetadata) {
-        
+        print("Not supported: ")
+        print(" > see removeMetadataWithKey(key: String, file: MMFile) instead")
     }
     
+    /**
+        Removes metadata with an associated key value
+        from a file. This is used in both the del and del-all
+        commands. Returns true if successful and false if not.
+        There are two situations in which this opperation may
+        return false:
+     
+            (i) The key value didn't exist in the file
+            (ii) Deleting the key value would result in a
+                 file of a specific type becoming invalid.
+    
+        - parameter : key, the key value of the metadata to be removed.
+        - parameter : file, the file to remove the metadata from.
+        - returns: a boolean representing if the opperation was successful
+                   or not.
+    */
     func removeMetadataWithKey(key: String, file: MMFile) -> Bool {
         if let upCastFile = file as? MultiMediaFile {
             let success = upCastFile.deleteMetaData(key)
@@ -55,14 +86,36 @@ class MultiMediaCollection: MMCollection, MMCollectionDeleter {
                 return true
             }
         }
-        //Could not delete metadata (might not exist)
+        //Could not delete metadata
         return false
     }
     
+    /**
+        Searches for and returns files within the collection that
+        contain a particular key. Used primarily for the list <term> ...
+        command.
+  
+        - parameter : term, the key value being search for.
+        - returns: an array of files that contain the term.
+     
+     */
     func search(term: String) -> [MMFile] {
-        return [MMFile]()
+        var returnList = [MultiMediaFile]()
+        for file in self.collection {
+            if let upCastFile = file as? MultiMediaFile {
+                if upCastFile.containsKey(term: term) {
+                    returnList.append(upCastFile)
+                }
+            }
+        }
+        return returnList
     }
     
+    /**
+        Returns all of the files within the collection.
+     
+        - returns: all files within the collection term.
+     */
     func all() -> [MMFile] {
         return collection
     }

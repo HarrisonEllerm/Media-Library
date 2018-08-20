@@ -32,6 +32,22 @@ class MultiMediaFile: MMFile {
     }
     
     /**
+        A function used when searching for files within the
+        library that have a specified term (i.e. key) present.
+     
+        - parameter : term, the term that is being searched for
+        - returns: a boolean representing if it was found or not.
+    */
+    func containsKey(term: String) -> Bool {
+        for meta in self.metadata {
+            if meta.keyword == term {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
         A function used primarily when testing to ensure
         that returns a boolean representing if the file
         contains a metadata key value pair or not.
@@ -51,6 +67,9 @@ class MultiMediaFile: MMFile {
         return false
     }
     
+    /**
+     Deletes stuff
+    */
     func deleteMetaData(_ key: String) -> Bool {
         switch self.type {
         case MediaType.image:

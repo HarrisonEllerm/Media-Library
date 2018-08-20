@@ -52,6 +52,23 @@ enum MMCliError: Error {
     ///Thrown if the encoder failed to encode the data
     case couldNotEncodeException
     
+    ///Thrown if the collection is empty
+    case libraryEmpty
+    
+    //Thrown if the key being set doesn't exist
+    case setKeyDidNotExist(String)
+    
+    //Thrown if the set format is incorrect
+    case setFormatIncorrect
+    
+    //Thrown if del-all couldn't delete metadata from every file in the collection
+    case delAllCouldntModifyAllFiles(Int)
+    
+    //Thrown if a delete is not allowed
+    case delNotAllowedError
+    
+    //Thrown if the del-all command format is incorrect
+    case delAllFormatIncorrect
    
 }
 
@@ -118,11 +135,10 @@ class MMResultSet{
     func getAllFiles() -> [MMFile] {
         return self.results
     }
-    
-  
-    
 }
 
+///A struct used to represent the structure
+///of the json files being read in as input.
 struct Media : Codable {
     var fullpath: String
     var type : MediaType
@@ -196,7 +212,6 @@ class UnimplementedCommandHandler: MMCommandHandler {
     }
 }
 
-//TO DO -- Implement a check too make sure that we do not load in duplicate files.
 ///Handle the 'load' command
 class LoadCommandHandler: MMCommandHandler {
     
@@ -227,8 +242,8 @@ class LoadCommandHandler: MMCommandHandler {
                             }
                             let file = getMultiMedaiFile(fileName, metaData, item)
                             
-                            //If file is valid
-                            if file.1 {
+                            //If file is valid and is not already in the library
+                            if file.1 && !library.containsFile(fileUrl: file.0.path){
                                 library.add(file: file.0)
                                 validFileCount += 1
                             } else {
@@ -274,8 +289,12 @@ class LoadCommandHandler: MMCommandHandler {
                 case MediaType.image:
                     if let imageFile = item as? ImageMultiMediaFile {
                         let errors = imageFile.getErrors()
-                        for err in errors {
-                            print("     > \(err)")
+                        if errors.isEmpty {
+                            print("     > Duplicate file (path already exists)")
+                        } else {
+                            for err in errors {
+                                print("     > \(err)")
+                            }
                         }
                         print()
                     }
@@ -283,8 +302,12 @@ class LoadCommandHandler: MMCommandHandler {
                 case MediaType.audio:
                     if let audioFile = item as? AudioMultiMediaFile {
                         let errors = audioFile.getErrors()
-                        for err in errors {
-                            print("     > \(err)")
+                        if errors.isEmpty {
+                            print("     > Duplicate file (path already exists)")
+                        } else {
+                            for err in errors {
+                                print("     > \(err)")
+                            }
                         }
                         print()
                     }
@@ -292,8 +315,12 @@ class LoadCommandHandler: MMCommandHandler {
                 case MediaType.document:
                     if let documentFile = item as? DocumentMultiMediaFile {
                         let errors = documentFile.getErrors()
-                        for err in errors {
-                            print("     > \(err)")
+                        if errors.isEmpty {
+                            print("     > Duplicate file (path already exists)")
+                        } else {
+                            for err in errors {
+                                print("     > \(err)")
+                            }
                         }
                         print()
                     }
@@ -301,8 +328,12 @@ class LoadCommandHandler: MMCommandHandler {
                 case MediaType.video:
                     if let videoFile = item as? VideoMultiMediaFile {
                         let errors = videoFile.getErrors()
-                        for err in errors {
-                            print("     > \(err)")
+                        if errors.isEmpty {
+                            print("     > Duplicate file (path already exists)")
+                        } else {
+                            for err in errors {
+                                print("     > \(err)")
+                            }
                         }
                     }
                     print()
@@ -342,42 +373,33 @@ class LoadCommandHandler: MMCommandHandler {
 
 class ListCommandHandler: MMCommandHandler {
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        
-        if lib.collection.isEmpty {
-            print("The library is empty.")
-        }
-        
-        if params.count == 0{
+        //If there is nothing in the library
+        if library.collection.isEmpty {
+            throw MMCliError.libraryEmpty
+        //If they just want to see everything in the library
+        } else if params.count == 0 {
             return MMResultSet(library.all())
-        }
-        if params.count == 1{
-            let term = params[0]
-            let newlist = MultiMediaCollection()
-
-                for file in library.all(){
-                    if file.filename.contains(term) || file.path.contains(term) || String((file.type).rawValue).contains(term){
-                        if(!newlist.containsFile(fileUrl: file.path)){
-                            newlist.add(file: file)
+        } else {
+            //Searching for one or more keywords
+            var searchList = [MMFile]()
+            for searchTerm in params {
+                
+                let resultOfSearch = library.search(term: searchTerm)
+                for item in resultOfSearch {
+                    if !searchList.contains(where: { (file) -> Bool in
+                        if file.path == item.path {
+                            return true
                         }
+                        return false
+                    }) {
+                        searchList.append(item)
                     }
-                    for mmdata in file.metadata{
-                        if mmdata.keyword.contains(term) || mmdata.value.contains(term){
-                            if(!newlist.containsFile(fileUrl: file.path)){
-                                newlist.add(file: file)
-                            }
-                        }
-                    }
+                }
             }
-            return MMResultSet(newlist.all())
-        }
-            else{
-             print("else")
-             throw MMCliError.invalidParameters
+            return MMResultSet(searchList)
         }
     }
 }
-
-
 
 class AddCommandHandler: MMCommandHandler{
     
@@ -430,9 +452,7 @@ class SetCommandHandler: MMCommandHandler{
                                     value: params[item+1].trimmingCharacters(in: .whitespaces))
                                     library.add(metadata: meta, file: file)
                                 } else {
-                                    print("<-------------------------- Set Error Log ------------------------->")
-                                    print("     > Could not modify key '\(params[item])', key does not exist.")
-                                    print("<------------------------------------------------------------------>")
+                                    throw MMCliError.setKeyDidNotExist(params[item])
                                 }
                             }
                         } else {
@@ -440,11 +460,10 @@ class SetCommandHandler: MMCommandHandler{
                         }
                     }
                 } else {
-                    //TODO MAKE DEL FORMAT INCORRECT EXCEPTION
-                    throw MMCliError.addDelFormatIncorrect
+                    throw MMCliError.setFormatIncorrect
                 }
-                return MMResultSet(library.all())
-            }
+            return MMResultSet(library.all())
+        }
 }
 
 
@@ -456,7 +475,6 @@ class DelAllCommandHandler: MMCommandHandler{
         var failCount = 0
         
         if params.count > 0 {
-            //This is safe as already validated it exists
             let seq = stride(from: 0, to: params.count, by: 1)
             for item in seq {
                 for file in library.all(){
@@ -472,16 +490,11 @@ class DelAllCommandHandler: MMCommandHandler{
                 print("Sucessfully deleted metada from \(successCount) files.")
             }
             if failCount > 0 {
-                print("<---------------------- Delete All Error Log ---------------------->")
-                print("     > Could not modify \(failCount) files, either a metadata key")
-                print("       did not exist in these files, or deleting a metadata key")
-                print("       key would result in an invalid file.")
-                print("<------------------------------------------------------------------>")
+                throw MMCliError.delAllCouldntModifyAllFiles(failCount)
             }
             
         } else {
-            //TODO MAKE DEL-ALL EXCEPTION
-            throw MMCliError.addDelFormatIncorrect
+            throw MMCliError.delAllFormatIncorrect
         }
         return MMResultSet(library.all())
     }
@@ -501,15 +514,9 @@ class DelCommandHandler: MMCommandHandler{
                 if let file = last.getFileAtIndex(index: indexToFile) {
                     if (item < params.count) {
                         let keyToDelete = params[item]
-                        print("Key To Delete: \(params[item])")
-                        let result = library.removeMetadataWithKey(key: keyToDelete, file: file)
-                        if result {
-                            print("Successfully modified file.")
-                        } else {
-                            print("<------------------------ Delete Error Log ------------------------>")
-                            print("     > Could not modify file, either key does not exist,")
-                            print("       or deleting the key would result in an invalid file.")
-                            print("<------------------------------------------------------------------>")
+                        let deleteOk = library.removeMetadataWithKey(key: keyToDelete, file: file)
+                        if !deleteOk {
+                            throw MMCliError.delNotAllowedError
                         }
                     }
                 } else {
@@ -564,7 +571,9 @@ class SaveCommandHandler: MMCommandHandler{
             
             
         }else{
-             throw MMCliError.saveDirectoryError       }
+             throw MMCliError.saveDirectoryError
+            
+        }
         
        // throw MMCliError.saveMissingFileName
         return MMResultSet()
@@ -613,15 +622,13 @@ class SaveSearchCommandHandler: MMCommandHandler{
                     }
                 
             }else{
-                throw MMCliError.saveDirectoryError       }
+                throw MMCliError.saveDirectoryError
+            }
         
         }else{
             throw MMCliError.saveMissingFileName
         }
-        
-        
         return MMResultSet()
-        
     }
 }
 
@@ -664,5 +671,4 @@ class CommandLineParser {
         }
         return false
     }
-    
 }

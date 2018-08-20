@@ -118,19 +118,50 @@ while let line = prompt("> "){
               """)
         print("    }\n },\n...\n]")
     }catch MMCliError.addDelFormatIncorrect {
-        print("Could not add/del the metadata without specifying index i.e.")
+        print("Could not add/del due to incorrect syntax, please follow:")
         print("""
                     > 'add 3 foo bar'
+                    > 'add 3 foo bar baz qux...'
                     > 'del 0 foo'
+                    > 'del 0 foo baz...'
               """)
+        print("Use del-all to remove metadata from all files.")
     }catch MMCliError.addCouldNotLocateFile(let indexToFile) {
         print("Could not locate file at \(indexToFile) to add metadata to.")
     }catch MMCliError.saveMissingFileName{
         print("Could not find the name of the file.")
     }catch MMCliError.saveDirectoryError{
         print("Could not find the directory that has been specified.")
-        
     }catch MMCliError.couldNotEncodeException{
         print("Could not encode the data.")
+    }catch MMCliError.libraryEmpty{
+        print("The collection is empty.")
+    }catch MMCliError.setKeyDidNotExist(let key) {
+        print("<-------------------------- Set Error Log ------------------------->")
+        print("     > Could not modify key '\(key)', key does not exist.")
+        print("<------------------------------------------------------------------>")
+    }catch MMCliError.setFormatIncorrect{
+        print("Could not set due to incorrect syntax, please follow:")
+        print("""
+                    > 'set 0 foo bar'
+                    > 'set 0 foo bar baz qux...'
+              """)
+    }catch MMCliError.delAllCouldntModifyAllFiles(let count){
+        print("<---------------------- Delete All Error Log ---------------------->")
+        print("     > Could not modify \(count) files, either a metadata key")
+        print("       did not exist in these files, or deleting a metadata key")
+        print("       key would result in an invalid file.")
+        print("<------------------------------------------------------------------>")
+    }catch MMCliError.delNotAllowedError{
+        print("<------------------------ Delete Error Log ------------------------>")
+        print("     > Could not modify file, either key does not exist,")
+        print("       or deleting the key would result in an invalid file.")
+        print("<------------------------------------------------------------------>")
+    }catch MMCliError.delAllFormatIncorrect{
+        print("Could not del-all to incorrect syntax, please follow:")
+        print("""
+                    > 'del-all 0 foo'
+                    > 'del-all foo baz...'
+              """)
     }
 }

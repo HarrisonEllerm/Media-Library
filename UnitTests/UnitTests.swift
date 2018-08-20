@@ -361,7 +361,7 @@ class UnitTests: XCTestCase {
                 XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile2.json"))
                 
                 //Now List the files in the library like a user would
-                let list = try listHandler.handle([""], last: load, library: testLib)
+                let list = try listHandler.handle([], last: load, library: testLib)
                 
                 //Add to the first file
                 let result = try addHandler.handle(add1, last: list, library: testLib)
