@@ -16,6 +16,10 @@ class UnitTests: XCTestCase {
     var loadHandler: LoadCommandHandler!
     var addHandler: AddCommandHandler!
     var listHandler: ListCommandHandler!
+    var setHandler: SetCommandHandler!
+    var delHandler: DelCommandHandler!
+    var delAllHandler: DelAllCommandHandler!
+    var saveHandler: SaveCommandHandler!
     var testLib: MultiMediaCollection!
 
     override func setUp() {
@@ -24,6 +28,10 @@ class UnitTests: XCTestCase {
         loadHandler = LoadCommandHandler()
         addHandler = AddCommandHandler()
         listHandler = ListCommandHandler()
+        setHandler = SetCommandHandler()
+        delHandler = DelCommandHandler()
+        delAllHandler = DelAllCommandHandler()
+        saveHandler = SaveCommandHandler()
         testLib = MultiMediaCollection()
     }
 
@@ -36,7 +44,7 @@ class UnitTests: XCTestCase {
         missing creator and resolution.
      
         - Expectation: invalid image files will NOT be added to
-          the library.
+                       the library.
     */
     func testInvalidImageFile() {
         let fileUrl = testBundle.url(forResource: "badImageFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -58,7 +66,7 @@ class UnitTests: XCTestCase {
         is missing creator and the other resolution.
      
         - Expectation: partially invalid image files will NOT be added to
-          the library.
+                       the library.
      */
     func testSemiInvalidImageFile() {
         let fileUrl = testBundle.url(forResource: "semiBadImageFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -80,7 +88,7 @@ class UnitTests: XCTestCase {
         both a creator and resolution field.
      
         - Expectation: valid image files WILL be added to
-          the library.
+                       the library.
      */
     func testValidImageFile() {
         let fileUrl = testBundle.url(forResource: "goodImageFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -102,7 +110,7 @@ class UnitTests: XCTestCase {
         missing creator, resolution and runtime.
      
         - Expectation: invalid video files will NOT be added to
-          the library.
+                       the library.
      */
     func testInvalidVideoFile() {
         let fileUrl = testBundle.url(forResource: "badVideoFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -126,7 +134,7 @@ class UnitTests: XCTestCase {
         is missing runtime.
      
         - Expectation: partially invalid video files will NOT be added to
-          the library.
+                       the library.
      */
     func testSemiInvalidVideoFile() {
         let fileUrl = testBundle.url(forResource: "semiBadVideoFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -150,7 +158,7 @@ class UnitTests: XCTestCase {
         creator, runtime and resolution field.
      
         - Expectation: valid video files WILL be added to
-          the library.
+                       the library.
      */
     func testValidVideoFile() {
         let fileUrl = testBundle.url(forResource: "goodVideoFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -173,7 +181,7 @@ class UnitTests: XCTestCase {
         missing the required field creator.
      
         - Expectation: invalid document files will NOT be added to
-          the library.
+                       the library.
      */
     func testInvalidDocumentFile() {
         let fileUrl = testBundle.url(forResource: "badDocumentFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -196,7 +204,7 @@ class UnitTests: XCTestCase {
         the required field creator.
      
         - Expectation: valid document files WILL be added to
-          the library.
+                       the library.
      */
     func testValidDocumentFile() {
         let fileUrl = testBundle.url(forResource: "goodDocumentFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -218,7 +226,7 @@ class UnitTests: XCTestCase {
         missing creator and runtime.
      
         - Expectation: invalid audio files will NOT be added to
-          the library.
+                       the library.
      */
     func testInvalidAudioFile() {
         let fileUrl = testBundle.url(forResource: "badAudioFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -241,7 +249,7 @@ class UnitTests: XCTestCase {
         is missing creator and the other runtime.
      
         - Expectation: partially invalid audio files will NOT be added to
-          the library.
+                       the library.
      */
     func testSemiInvalidAudioFile() {
         let fileUrl = testBundle.url(forResource: "semiBadAudioFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -264,7 +272,7 @@ class UnitTests: XCTestCase {
         both a creator and runtime field.
      
         - Expectation: valid audio files WILL be added to
-          the library.
+                       the library.
      */
     func testValidAudioFile() {
         let fileUrl = testBundle.url(forResource: "goodImageFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -285,7 +293,7 @@ class UnitTests: XCTestCase {
         Tests that multiple valid Json files were loaded and merged correctly.
      
         - Expectation: valid audio files WILL be added to
-          the library and merged.
+                       the library and merged.
     */
     func testMultipleAudioFiles() {
         let fileUrl1 = testBundle.url(forResource: "goodAudioFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -311,7 +319,7 @@ class UnitTests: XCTestCase {
         Tests that multiple invalid Json files were not loaded.
      
         - Expectation: invalid audio files WILL be added to
-          the library and not merged.
+                       the library and not merged.
      */
     func testMultipleInvalidAudioFiles() {
         let fileUrl1 = testBundle.url(forResource: "badAudioFile", withExtension: ".json", subdirectory: "jsonFiles")
@@ -340,13 +348,12 @@ class UnitTests: XCTestCase {
         or not.
      
         This function mimics the way a user would add data. First, loading in
-        a file to the library so they have something to modify. The "Listing"
+        a file to the library so they have something to modify. Then "Listing"
         the files so they can see which files exist at what index. Then passing
         in a index and new metadata, to add to a specific file.
      
         - Expectation: the files will be modified and contain the new
-          metadata.
-     
+                       metadata.
     */
     func testAddMetadata() {
         let add1 = ["0", "Homer", "Simpson"]
@@ -391,4 +398,185 @@ class UnitTests: XCTestCase {
             XCTFail("Failed to find file in directory")
         }
     }
+    
+    /**
+        This function tests that the set function works correctly.
+        It loads in a file to modify, and then adds a metadata
+        instance to it, finally setting the value of that instance to be
+        different from what it was initially, to test if the instance was
+        successfully modified or not.
+     
+        - Expectation: the metadata that is initialy added ["Homer":"Simpson"]
+                       will be set to ["Homer":"Griffin"].
+     */
+    func testSetMetadata() {
+        let add1 = ["0", "Homer", "Simpson"]
+        let set2 = ["0", "Homer", "Griffin"]
+        
+        let fileUrl = testBundle.url(forResource: "addTestFile1", withExtension: ".json", subdirectory: "jsonFiles")
+        if let relPath = fileUrl?.relativePath {
+            do {
+                //First load the json file into the lib so we can modify it
+                let load = try loadHandler.handle([relPath], last: MMResultSet(), library: testLib)
+                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile1.json"))
+                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile2.json"))
+                
+                //Now List the files in the library like a user would
+                let list = try listHandler.handle([], last: load, library: testLib)
+                
+                //Add to the first file
+                let result = try addHandler.handle(add1, last: list, library: testLib)
+                //Check first file contains new metadata
+                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
+                    XCTAssert(file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                } else {
+                    XCTFail("Failed to upcast/failed to find metadata")
+                }
+                //Now modify the new metadata
+                let _ = try setHandler.handle(set2, last: result, library: testLib)
+                //Check first files metadata has been modified
+                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
+                    XCTAssert(file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Griffin")))
+                } else {
+                    XCTFail("Failed to upcast/failed to find metadata")
+                }
+            } catch(let error) {
+                XCTFail("An exception was raised \(error.localizedDescription)")
+            }
+        } else {
+            XCTFail("Failed to find file in directory")
+        }
+    }
+    
+    /**
+        This function tests that the del function works correctly.
+        It loads in a file to modify, and then adds a metadata
+        instance to it, then finally deleting that instance to
+        ensure that the delete function works as expected.
+     
+        - Expectation: the metadata that is initialy added ["Homer":"Simpson"]
+                       will be deleted.
+     */
+    func testDelMetadata() {
+        let add1 = ["0", "Homer", "Simpson"]
+        let del1 = ["0", "Homer"]
+        
+        let fileUrl = testBundle.url(forResource: "addTestFile1", withExtension: ".json", subdirectory: "jsonFiles")
+        if let relPath = fileUrl?.relativePath {
+            do {
+                //First load the json file into the lib so we can modify it
+                let load = try loadHandler.handle([relPath], last: MMResultSet(), library: testLib)
+                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile1.json"))
+                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile2.json"))
+                
+                //Now List the files in the library like a user would
+                let list = try listHandler.handle([], last: load, library: testLib)
+                
+                //Add to the first file
+                let result = try addHandler.handle(add1, last: list, library: testLib)
+                //Check first file contains new metadata
+                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
+                    XCTAssert(file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                } else {
+                    XCTFail("Failed to upcast/failed to find metadata")
+                }
+                //Now delete the new metadata
+                let _ = try delHandler.handle(del1, last: result, library: testLib)
+                //Check first files metadata has been modified
+                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
+                    XCTAssert(!file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                } else {
+                    XCTFail("Failed to upcast/failed to find metadata")
+                }
+            } catch(let error) {
+                XCTFail("An exception was raised \(error.localizedDescription)")
+            }
+        } else {
+            XCTFail("Failed to find file in directory")
+        }
+    }
+    
+    func testDelAllMetadata() {
+        let add1 = ["0", "Homer", "Simpson"]
+        let add2 = ["1", "Homer", "Simpson"]
+        let del = ["Homer"]
+   
+        let fileUrl = testBundle.url(forResource: "addTestFile1", withExtension: ".json", subdirectory: "jsonFiles")
+        if let relPath = fileUrl?.relativePath {
+            do {
+                //First load the json file into the lib so we can modify it
+                let load = try loadHandler.handle([relPath], last: MMResultSet(), library: testLib)
+                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile1.json"))
+                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile2.json"))
+                
+                //Now List the files in the library like a user would
+                let list = try listHandler.handle([], last: load, library: testLib)
+                
+                //Add to the first file
+                let result = try addHandler.handle(add1, last: list, library: testLib)
+                //Check first file contains new metadata
+                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
+                    XCTAssert(file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                } else {
+                    XCTFail("Failed to upcast/failed to find metadata")
+                }
+                
+                //Add to the second file
+                let result2 = try addHandler.handle(add2, last: result, library: testLib)
+                //Check second file contains new metadata
+                if let file2 = testLib.getFile(fileUrl: "/somepath/goodAudioFile2.json") as? MultiMediaFile {
+                    XCTAssert(file2.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                } else {
+                    XCTFail("Failed to upcast/failed to find metadata")
+                }
+                
+                //Now delete the new metadata from all files
+                let _ = try delAllHandler.handle(del, last: result2, library: testLib)
+                //Check first files metadata has been modified
+                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile,
+                    let file2 = testLib.getFile(fileUrl: "/somepath/goodAudioFile2.json") as? MultiMediaFile {
+                    XCTAssert(!file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                    XCTAssert(!file2.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                } else {
+                    XCTFail("Failed to upcast/failed to find metadata")
+                }
+            } catch(let error) {
+                XCTFail("An exception was raised \(error.localizedDescription)")
+            }
+        } else {
+            XCTFail("Failed to find file in directory")
+        }
+    }
+    
+    func testSaveMetaData() {
+        let save = ["test"]
+        
+        let fileUrl = testBundle.url(forResource: "addTestFile1", withExtension: ".json", subdirectory: "jsonFiles")
+        if let relPath = fileUrl?.relativePath {
+            do {
+                //First load the json file into the lib so we can modify it
+                let load = try loadHandler.handle([relPath], last: MMResultSet(), library: testLib)
+                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile1.json"))
+                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile2.json"))
+                
+                //Now List the files in the library like a user would
+                let list = try listHandler.handle([], last: load, library: testLib)
+                
+                //Save the library
+                let _ = try saveHandler.handle(save, last: list, library: testLib)
+                
+                //Check file exists in users documents directory
+                if let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                    let url = documents.appendingPathComponent("/test.json")
+                    XCTAssert(FileManager.default.fileExists(atPath: url.path))
+                }
+              
+            } catch(let error) {
+                XCTFail("An exception was raised \(error.localizedDescription)")
+            }
+        } else {
+            XCTFail("Failed to find file in directory")
+        }
+    }
+    
 }

@@ -8,7 +8,7 @@
 
 import Foundation
 
-class MultiMediaCollection: MMCollection, MMCollectionDeleter {
+class MultiMediaCollection: NSMMCollection {
     
     //The collection of files
     var collection : [MMFile]
@@ -52,7 +52,7 @@ class MultiMediaCollection: MMCollection, MMCollectionDeleter {
         Unused due to removeMetadataWithKey behaving in a more
         useful way for our specific implementation.
         Perhaps eventually the MMCollection protocol could be
-        revised to not include this (in our implementation).
+        revised to not include this (in this implementation).
      
          - parameter : metadata, the metadata to be removed.
     */

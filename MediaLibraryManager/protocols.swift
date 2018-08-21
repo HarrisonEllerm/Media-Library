@@ -123,7 +123,7 @@ protocol MMCollection:CustomStringConvertible {
     func search(item: MMMetadata) -> [MMFile]
 }
 
-protocol MMCollectionDeleter: MMCollection {
+protocol NSMMCollection: MMCollection {
     
     ///
     /// Removes a particular instance of metadata from a file

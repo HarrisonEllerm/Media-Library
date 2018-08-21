@@ -44,7 +44,7 @@ enum MMCliError: Error {
     case addCouldNotLocateFile(Int)
     
     ///Thrown if the File is not passed in
-    case saveMissingFileName
+    case saveMissingFileName()
     
     ///Thrown if the directory does not exist
     case saveDirectoryError
@@ -206,15 +206,15 @@ class QuitCommandHandler : MMCommandHandler {
 }
 
 // All the other commands are unimplemented
-class UnimplementedCommandHandler: MMCommandHandler {
+class UnimplementedCommandHandler: MMCommandHandler{
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         throw MMCliError.unimplementedCommand
     }
 }
 
 ///Handle the 'load' command
-class LoadCommandHandler: MMCommandHandler {
-    
+class LoadCommandHandler: MMCommandHandler{
+   
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
     
         var garbage = [MMFile]()
@@ -431,8 +431,8 @@ class AddCommandHandler: MMCommandHandler{
     }
 }
 
-//del followed by an add
 class SetCommandHandler: MMCommandHandler{
+    //Minimum number of params acceptable for command
     private let minParams = 3
     
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
@@ -466,40 +466,6 @@ class SetCommandHandler: MMCommandHandler{
         }
 }
 
-
-class DelAllCommandHandler: MMCommandHandler{
-  
-    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        
-        var successCount = 0
-        var failCount = 0
-        
-        if params.count > 0 {
-            let seq = stride(from: 0, to: params.count, by: 1)
-            for item in seq {
-                for file in library.all(){
-                    let result = library.removeMetadataWithKey(key: params[item], file: file)
-                    if result {
-                        successCount += 1
-                    } else {
-                        failCount += 1
-                    }
-               }
-            }
-            if successCount > 0 {
-                print("Sucessfully deleted metada from \(successCount) files.")
-            }
-            if failCount > 0 {
-                throw MMCliError.delAllCouldntModifyAllFiles(failCount)
-            }
-            
-        } else {
-            throw MMCliError.delAllFormatIncorrect
-        }
-        return MMResultSet(library.all())
-    }
-}
-
 class DelCommandHandler: MMCommandHandler{
     //Minimum number of params acceptable for command
     private let minParams = 2
@@ -524,8 +490,41 @@ class DelCommandHandler: MMCommandHandler{
                 }
             }
         } else {
-            //TODO MAKE DEL FORMAT INCORRECT EXCEPTION
             throw MMCliError.addDelFormatIncorrect
+        }
+        return MMResultSet(library.all())
+    }
+}
+
+class DelAllCommandHandler: MMCommandHandler{
+    
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
+        //Number of succesfully deleted instances
+        var successCount = 0
+        //Number of uncessfully deleted instances
+        var failCount = 0
+        
+        if params.count > 0 {
+            let seq = stride(from: 0, to: params.count, by: 1)
+            for item in seq {
+                for file in library.all(){
+                    let result = library.removeMetadataWithKey(key: params[item], file: file)
+                    if result {
+                        successCount += 1
+                    } else {
+                        failCount += 1
+                    }
+                }
+            }
+            if successCount > 0 {
+                print("Sucessfully deleted \(successCount) metadata instances.")
+            }
+            if failCount > 0 {
+                throw MMCliError.delAllCouldntModifyAllFiles(failCount)
+            }
+        //At least one argument needed to issue del-all command
+        } else {
+            throw MMCliError.delAllFormatIncorrect
         }
         return MMResultSet(library.all())
     }
@@ -534,51 +533,43 @@ class DelCommandHandler: MMCommandHandler{
 class SaveCommandHandler: MMCommandHandler{
     
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        var array = [Media]()
+        var encodeableArray = [Media]()
         
-        for file in library.all(){
-            var meta = [String:String]()
-            for item in file.metadata {
-                meta.updateValue(item.keyword, forKey: item.value)
-            }
-            let mediaStruct = Media(fullpath: file.path, type: file.type, metadata: meta)
-            array.append(mediaStruct)
-        }
-
-        if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first{
-            var filename = params[0]
-            if params.count == 1{
-                if !filename.contains(".json"){
-                    filename.append(".json")
+        if params.count == 1 {
+            for file in library.all(){
+                var meta = [String:String]()
+                for item in file.metadata {
+                    meta.updateValue(item.keyword, forKey: item.value)
                 }
-             
-                let directory = documentsURL.appendingPathComponent(filename)
-                    do {
-                        let jsonEncoder = JSONEncoder()
-                        let jsonData = try jsonEncoder.encode(array)
-                        
-                        //let data = try JSONSerialization.data(withJSONObject: array, options: [])
-                        try jsonData.write(to: directory, options: [])
-                        print("Successfully saved the file.")
-                        
+            let mediaStruct = Media(fullpath: file.path, type: file.type, metadata: meta)
+            encodeableArray.append(mediaStruct)
+        }
+        //Get the documents directory for the user
+        if let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first{
+            var filename = params[0]
+            //If the user didn't save it as a json file make it one
+            if !filename.contains(".json"){
+                filename.append(".json")
+            }
+            let directory = documents.appendingPathComponent(filename)
+                do {
+                    let jsonEncoder = JSONEncoder()
+                    let jsonData = try jsonEncoder.encode(encodeableArray)
+                    try jsonData.write(to: directory, options: [])
+                    print("Successfully saved the file to \(directory.path).")
                     } catch {
-                        
                         throw MMCliError.couldNotEncodeException
                     }
-                }else{
-                 throw MMCliError.saveMissingFileName
-                }
-            
-            
-        }else{
+        //Could not find users home directory
+        } else {
              throw MMCliError.saveDirectoryError
-            
         }
-        
-       // throw MMCliError.saveMissingFileName
-        return MMResultSet()
+    //User didn't specify a file name to save it as
+    } else {
+        throw MMCliError.saveMissingFileName()
     }
-
+    return MMResultSet()
+    }
 }
 
 class SaveSearchCommandHandler: MMCommandHandler{
@@ -626,7 +617,7 @@ class SaveSearchCommandHandler: MMCommandHandler{
             }
         
         }else{
-            throw MMCliError.saveMissingFileName
+            throw MMCliError.saveMissingFileName()
         }
         return MMResultSet()
     }

@@ -127,11 +127,11 @@ while let line = prompt("> "){
               """)
         print("Use del-all to remove metadata from all files.")
     }catch MMCliError.addCouldNotLocateFile(let indexToFile) {
-        print("Could not locate file at \(indexToFile) to add metadata to.")
+        print("Could not locate file at index \(indexToFile) to add metadata to.")
     }catch MMCliError.saveMissingFileName{
         print("Could not find the name of the file.")
     }catch MMCliError.saveDirectoryError{
-        print("Could not find the directory that has been specified.")
+        print("Could not find the users documents directory.")
     }catch MMCliError.couldNotEncodeException{
         print("Could not encode the data.")
     }catch MMCliError.libraryEmpty{
@@ -148,9 +148,9 @@ while let line = prompt("> "){
               """)
     }catch MMCliError.delAllCouldntModifyAllFiles(let count){
         print("<---------------------- Delete All Error Log ---------------------->")
-        print("     > Could not modify \(count) files, either a metadata key")
-        print("       did not exist in these files, or deleting a metadata key")
-        print("       key would result in an invalid file.")
+        print("     > Could not modify \(count) metadata instances, either the key(s)")
+        print("       did not exist in certain files, or deleting the key(s)")
+        print("       would result files becoming invalid.")
         print("<------------------------------------------------------------------>")
     }catch MMCliError.delNotAllowedError{
         print("<------------------------ Delete Error Log ------------------------>")
