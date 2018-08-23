@@ -375,7 +375,7 @@ class UnitTests: XCTestCase {
                 
                 //Check first file contains new metadata
                 if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
-                    XCTAssert(file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                    XCTAssert(file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
                 } else {
                     XCTFail("Failed to upcast/failed to find metadata")
                 }
@@ -386,8 +386,8 @@ class UnitTests: XCTestCase {
                 //Check second file contains new metadata
                 if let file2 = testLib.getFile(fileUrl: "/somepath/goodAudioFile2.json") as? MultiMediaFile {
                     
-                    XCTAssert(file2.containsMetaData(meta: MultiMediaMetaData(keyword: "Peter", value: "Griffin")))
-                    XCTAssertTrue(file2.containsMetaData(meta: MultiMediaMetaData(keyword: "Meg", value: "Griffin")))
+                    XCTAssert(file2.containsMetadata(meta: MultiMediaMetaData(keyword: "Peter", value: "Griffin")))
+                    XCTAssertTrue(file2.containsMetadata(meta: MultiMediaMetaData(keyword: "Meg", value: "Griffin")))
                 } else {
                     XCTFail("Failed to upcast/failed to find metadata")
                 }
@@ -428,7 +428,7 @@ class UnitTests: XCTestCase {
                 let result = try addHandler.handle(add1, last: list, library: testLib)
                 //Check first file contains new metadata
                 if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
-                    XCTAssert(file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                    XCTAssert(file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
                 } else {
                     XCTFail("Failed to upcast/failed to find metadata")
                 }
@@ -436,7 +436,7 @@ class UnitTests: XCTestCase {
                 let _ = try setHandler.handle(set2, last: result, library: testLib)
                 //Check first files metadata has been modified
                 if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
-                    XCTAssert(file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Griffin")))
+                    XCTAssert(file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Griffin")))
                 } else {
                     XCTFail("Failed to upcast/failed to find metadata")
                 }
@@ -476,7 +476,7 @@ class UnitTests: XCTestCase {
                 let result = try addHandler.handle(add1, last: list, library: testLib)
                 //Check first file contains new metadata
                 if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
-                    XCTAssert(file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                    XCTAssert(file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
                 } else {
                     XCTFail("Failed to upcast/failed to find metadata")
                 }
@@ -484,7 +484,7 @@ class UnitTests: XCTestCase {
                 let _ = try delHandler.handle(del1, last: result, library: testLib)
                 //Check first files metadata has been modified
                 if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
-                    XCTAssert(!file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                    XCTAssert(!file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
                 } else {
                     XCTFail("Failed to upcast/failed to find metadata")
                 }
@@ -516,7 +516,7 @@ class UnitTests: XCTestCase {
                 let result = try addHandler.handle(add1, last: list, library: testLib)
                 //Check first file contains new metadata
                 if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
-                    XCTAssert(file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                    XCTAssert(file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
                 } else {
                     XCTFail("Failed to upcast/failed to find metadata")
                 }
@@ -525,7 +525,7 @@ class UnitTests: XCTestCase {
                 let result2 = try addHandler.handle(add2, last: result, library: testLib)
                 //Check second file contains new metadata
                 if let file2 = testLib.getFile(fileUrl: "/somepath/goodAudioFile2.json") as? MultiMediaFile {
-                    XCTAssert(file2.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                    XCTAssert(file2.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
                 } else {
                     XCTFail("Failed to upcast/failed to find metadata")
                 }
@@ -535,8 +535,8 @@ class UnitTests: XCTestCase {
                 //Check first files metadata has been modified
                 if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile,
                     let file2 = testLib.getFile(fileUrl: "/somepath/goodAudioFile2.json") as? MultiMediaFile {
-                    XCTAssert(!file1.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
-                    XCTAssert(!file2.containsMetaData(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                    XCTAssert(!file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+                    XCTAssert(!file2.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
                 } else {
                     XCTFail("Failed to upcast/failed to find metadata")
                 }

@@ -1,0 +1,21 @@
+ [ 
+  {
+  "fullpath":"/somepath/goodAudio.json",
+  "type":"audio",
+  "metadata": {
+  "taken_on":"today",
+  "name":"semi_bad_audio1",
+  "creator":"harry",
+  "runtime":"1.5"
+  }
+  },
+  {
+  "fullpath":"/somepath/badAudio.json",
+  "type":"audio",
+  "metadata": {
+  "taken_on":"today",
+  "name":"semi_bad_audio2",
+  "runtime":"1.5"
+  }
+  }
+  ]

@@ -10,10 +10,21 @@ import Foundation
 
 class ImageMultiMediaFile: MultiMediaFile {
     
-    var creatorMissing : Bool = false
+    ///Flag that represents if creator field is missing
+    private var creatorMissing : Bool = false
+    ///Flag that represents if resolution field is missing
+    private var resolutionMissing : Bool = false
     
-    var resolutionMissing : Bool = false
-    
+    /**
+        A function that determines if the file is "valid". An
+        image file is valid if:
+     
+        (i) the creator field exists
+        (ii) the resolution field exists
+     
+        - returns: a Boolean representing if the file meets
+                   the above criterea.
+    */
     func isValid() -> Bool {
         var valid : Bool = true
         
@@ -38,6 +49,13 @@ class ImageMultiMediaFile: MultiMediaFile {
         return valid
     }
     
+    /**
+        A function that investigates the errors associated
+        with the file, so that these can be shown to the
+        user in an intuitive way.
+     
+        - returns: A String array with the errors found.
+    */
     func getErrors() -> [String] { 
         var errors = [String]()
         if creatorMissing {

@@ -8,18 +8,18 @@
 
 import Foundation
 
-class MultiMediaCollection: NSMMCollection {
-    
+class MultiMediaCollection: NSMMCollection, MMFileExport {
+
     //The collection of files
-    var collection : [MMFile]
+    var collection: [MMFile]
     //Count of files within the collection
-    var count : Int
-    
+    private var count: Int
+
     init() {
         collection = [MMFile]()
         count = 0
     }
-    
+
     /**
         Adds a file to the collection.
      
@@ -29,7 +29,17 @@ class MultiMediaCollection: NSMMCollection {
         collection.append(file)
         count += 1
     }
-    
+
+    /**
+        Returns the count of files within the collection.
+     
+        - returns: an Int representing the count of files
+                   within the collection.
+    */
+    func getCount() -> Int {
+        return self.count
+    }
+
     /**
         Adds metadata to a file, and then updates
         that file within the collection.
@@ -40,11 +50,10 @@ class MultiMediaCollection: NSMMCollection {
     */
     func add(metadata: MMMetadata, file: MMFile) {
         if let upCastFile = file as? MultiMediaFile {
-            upCastFile.metadata.append(metadata)
-            self.replaceFile(file, upCastFile)
+            upCastFile.addMetadata(meta: metadata)
         }
     }
-    
+
     /**
         Removes metadata from the collection
         as a whole.
@@ -54,13 +63,16 @@ class MultiMediaCollection: NSMMCollection {
         Perhaps eventually the MMCollection protocol could be
         revised to not include this (in this implementation).
      
+        Remove metada from all files. Inverted Index.
+        
+     
          - parameter : metadata, the metadata to be removed.
     */
     func remove(metadata: MMMetadata) {
         print("Not supported: ")
         print(" > see removeMetadataWithKey(key: String, file: MMFile) instead")
     }
-    
+
     /**
         Removes metadata with an associated key value
         from a file. This is used in both the del and del-all
@@ -68,7 +80,7 @@ class MultiMediaCollection: NSMMCollection {
         There are two situations in which this opperation may
         return false:
      
-            (i) The key value didn't exist in the file
+            (i)  The key value didn't exist in the file
             (ii) Deleting the key value would result in a
                  file of a specific type becoming invalid.
     
@@ -89,7 +101,7 @@ class MultiMediaCollection: NSMMCollection {
         //Could not delete metadata
         return false
     }
-    
+
     /**
         Searches for and returns files within the collection that
         contain a particular key. Used primarily for the list <term> ...
@@ -97,7 +109,6 @@ class MultiMediaCollection: NSMMCollection {
   
         - parameter : term, the key value being search for.
         - returns: an array of files that contain the term.
-     
      */
     func search(term: String) -> [MMFile] {
         var returnList = [MultiMediaFile]()
@@ -110,30 +121,34 @@ class MultiMediaCollection: NSMMCollection {
         }
         return returnList
     }
-    
+
     /**
         Returns all of the files within the collection.
      
-        - returns: all files within the collection term.
+        - returns: all files within the collection.
      */
     func all() -> [MMFile] {
         return collection
     }
-    
+
     func search(item: MMMetadata) -> [MMFile] {
         return [MMFile]()
     }
-    
+
     var description: String {
         get {
             return ""
         }
     }
 
+
+    func write(filename: String, items: [MMFile]) throws {
+
+    }
 }
 
 extension MultiMediaCollection {
-    
+
     func containsFile(fileUrl: String) -> Bool {
         return self.collection.contains(where: { (mmfile) -> Bool in
             if mmfile.path == fileUrl {
@@ -142,7 +157,7 @@ extension MultiMediaCollection {
             return false
         })
     }
-    
+
     func getFile(fileUrl: String) -> MMFile? {
         for item in self.collection {
             if item.path == fileUrl {
@@ -151,7 +166,7 @@ extension MultiMediaCollection {
         }
         return nil
     }
-    
+
     func replaceFile(_ file: MMFile, _ upCastFile: MultiMediaFile) {
         for var item in self.collection {
             if item.path == file.path {
