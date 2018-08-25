@@ -18,7 +18,7 @@ class UnitTests: XCTestCase {
     var listHandler: ListCommandHandler!
     var setHandler: SetCommandHandler!
     var delHandler: DelCommandHandler!
-    var delAllHandler: DelAllCommandHandler!
+//    var delAllHandler: DelAllCommandHandler!
     var saveHandler: SaveCommandHandler!
     var testLib: MultiMediaCollection!
 
@@ -30,7 +30,7 @@ class UnitTests: XCTestCase {
         listHandler = ListCommandHandler()
         setHandler = SetCommandHandler()
         delHandler = DelCommandHandler()
-        delAllHandler = DelAllCommandHandler()
+//        delAllHandler = DelAllCommandHandler()
         saveHandler = SaveCommandHandler()
         testLib = MultiMediaCollection()
     }
@@ -496,57 +496,57 @@ class UnitTests: XCTestCase {
         }
     }
     
-    func testDelAllMetadata() {
-        let add1 = ["0", "Homer", "Simpson"]
-        let add2 = ["1", "Homer", "Simpson"]
-        let del = ["Homer"]
-   
-        let fileUrl = testBundle.url(forResource: "addTestFile1", withExtension: ".json", subdirectory: "jsonFiles")
-        if let relPath = fileUrl?.relativePath {
-            do {
-                //First load the json file into the lib so we can modify it
-                let load = try loadHandler.handle([relPath], last: MMResultSet(), library: testLib)
-                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile1.json"))
-                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile2.json"))
-                
-                //Now List the files in the library like a user would
-                let list = try listHandler.handle([], last: load, library: testLib)
-                
-                //Add to the first file
-                let result = try addHandler.handle(add1, last: list, library: testLib)
-                //Check first file contains new metadata
-                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
-                    XCTAssert(file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
-                } else {
-                    XCTFail("Failed to upcast/failed to find metadata")
-                }
-                
-                //Add to the second file
-                let result2 = try addHandler.handle(add2, last: result, library: testLib)
-                //Check second file contains new metadata
-                if let file2 = testLib.getFile(fileUrl: "/somepath/goodAudioFile2.json") as? MultiMediaFile {
-                    XCTAssert(file2.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
-                } else {
-                    XCTFail("Failed to upcast/failed to find metadata")
-                }
-                
-                //Now delete the new metadata from all files
-                let _ = try delAllHandler.handle(del, last: result2, library: testLib)
-                //Check first files metadata has been modified
-                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile,
-                    let file2 = testLib.getFile(fileUrl: "/somepath/goodAudioFile2.json") as? MultiMediaFile {
-                    XCTAssert(!file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
-                    XCTAssert(!file2.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
-                } else {
-                    XCTFail("Failed to upcast/failed to find metadata")
-                }
-            } catch(let error) {
-                XCTFail("An exception was raised \(error.localizedDescription)")
-            }
-        } else {
-            XCTFail("Failed to find file in directory")
-        }
-    }
+//    func testDelAllMetadata() {
+//        let add1 = ["0", "Homer", "Simpson"]
+//        let add2 = ["1", "Homer", "Simpson"]
+//        let del = ["Homer"]
+//   
+//        let fileUrl = testBundle.url(forResource: "addTestFile1", withExtension: ".json", subdirectory: "jsonFiles")
+//        if let relPath = fileUrl?.relativePath {
+//            do {
+//                //First load the json file into the lib so we can modify it
+//                let load = try loadHandler.handle([relPath], last: MMResultSet(), library: testLib)
+//                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile1.json"))
+//                XCTAssert(testLib.containsFile(fileUrl: "/somepath/goodAudioFile2.json"))
+//                
+//                //Now List the files in the library like a user would
+//                let list = try listHandler.handle([], last: load, library: testLib)
+//                
+//                //Add to the first file
+//                let result = try addHandler.handle(add1, last: list, library: testLib)
+//                //Check first file contains new metadata
+//                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile {
+//                    XCTAssert(file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+//                } else {
+//                    XCTFail("Failed to upcast/failed to find metadata")
+//                }
+//                
+//                //Add to the second file
+//                let result2 = try addHandler.handle(add2, last: result, library: testLib)
+//                //Check second file contains new metadata
+//                if let file2 = testLib.getFile(fileUrl: "/somepath/goodAudioFile2.json") as? MultiMediaFile {
+//                    XCTAssert(file2.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+//                } else {
+//                    XCTFail("Failed to upcast/failed to find metadata")
+//                }
+//                
+//                //Now delete the new metadata from all files
+//                let _ = try delAllHandler.handle(del, last: result2, library: testLib)
+//                //Check first files metadata has been modified
+//                if let file1 = testLib.getFile(fileUrl: "/somepath/goodAudioFile1.json") as? MultiMediaFile,
+//                    let file2 = testLib.getFile(fileUrl: "/somepath/goodAudioFile2.json") as? MultiMediaFile {
+//                    XCTAssert(!file1.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+//                    XCTAssert(!file2.containsMetadata(meta: MultiMediaMetaData(keyword: "Homer", value: "Simpson")))
+//                } else {
+//                    XCTFail("Failed to upcast/failed to find metadata")
+//                }
+//            } catch(let error) {
+//                XCTFail("An exception was raised \(error.localizedDescription)")
+//            }
+//        } else {
+//            XCTFail("Failed to find file in directory")
+//        }
+//    }
     
     func testSaveMetaData() {
         let save = ["test"]

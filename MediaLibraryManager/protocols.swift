@@ -134,7 +134,7 @@ protocol NSMMCollection: MMCollection {
     ///   A boolean that clarifies if the opperation was sucessful or
     ///   not.
     ///
-    func removeMetadataWithKey(key: String, file: MMFile) -> Bool
+    func removeMetadataFromFile(meta: MMMetadata, file: MMFile) -> Bool
 }
 
 ///

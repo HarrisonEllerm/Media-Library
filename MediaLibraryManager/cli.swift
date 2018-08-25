@@ -70,6 +70,9 @@ enum MMCliError: Error {
     //Thrown if the del-all command format is incorrect
     case delAllFormatIncorrect
 
+    //Thrown if the load command format is invalid
+    case loadCommandFormatInvalid
+
 }
 
 /// Generate a friendly prompt and wait for the user to enter a line of input
@@ -214,23 +217,28 @@ class UnimplementedCommandHandler: MMCommandHandler {
 
 ///Handle the 'load' command
 class LoadCommandHandler: MMCommandHandler {
+    //If the user doesn't prefix with a /
 
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        let importer = Importer()
-        for item in params {
-            // Parse the command to replace '~' with home directory
-            let path = CommandLineParser.sharedInstance.getCommand(inputString: item)
-            //Check that the file actually exists before continuing
-            if FileManager.default.fileExists(atPath: path) {
-                let files = try importer.read(filename: path)
-                for item in files {
-                    library.add(file: item)
+        if params.count > 0 {
+            let importer = Importer()
+            for item in params {
+                // Parse the command to replace '~' with home directory
+                let path = CommandLineParser.sharedInstance.getCommand(inputString: item)
+                //Check that the file actually exists before continuing
+                if FileManager.default.fileExists(atPath: path) {
+                    let files = try importer.read(filename: path)
+                    for item in files {
+                        library.add(file: item)
+                    }
+                } else {
+                    throw MMCliError.invalidFile(path)
                 }
-            } else {
-                throw MMCliError.invalidFile(path)
             }
+            return MMResultSet()
+        } else {
+            throw MMCliError.loadCommandFormatInvalid
         }
-        return MMResultSet()
     }
 }
 
@@ -305,18 +313,18 @@ class SetCommandHandler: MMCommandHandler {
             let seq = stride(from: 1, to: params.count, by: 2)
             for item in seq {
                 if let file = last.getFileAtIndex(index: indexToFile) {
-                    if (item < params.count) {
-                        let keyToDelete = params[item]
-                        let result = library.removeMetadataWithKey(key: keyToDelete, file: file)
-                        if result {
-                            let meta = MultiMediaMetaData(
-                                keyword: params[item].trimmingCharacters(in: .whitespaces),
-                                value: params[item + 1].trimmingCharacters(in: .whitespaces))
-                            library.add(metadata: meta, file: file)
-                        } else {
-                            throw MMCliError.setKeyDidNotExist(params[item])
-                        }
-                    }
+//                    if (item < params.count) {
+//                        let keyToDelete = params[item]
+//                        let result = library.removeMetadataFromFile(key: keyToDelete, file: file)
+//                        if result {
+//                            let meta = MultiMediaMetaData(
+//                                keyword: params[item].trimmingCharacters(in: .whitespaces),
+//                                value: params[item + 1].trimmingCharacters(in: .whitespaces))
+//                            library.add(metadata: meta, file: file)
+//                        } else {
+//                            throw MMCliError.setKeyDidNotExist(params[item])
+//                        }
+//                    }
                 } else {
                     throw MMCliError.addCouldNotLocateFile(indexToFile)
                 }
@@ -338,13 +346,16 @@ class DelCommandHandler: MMCommandHandler {
             //This is safe as already validated it exists
             let indexToFile = Int(params[0])!
             let seq = stride(from: 1, to: params.count, by: 1)
+
             for item in seq {
-                if let file = last.getFileAtIndex(index: indexToFile) {
+                if let file = last.getFileAtIndex(index: indexToFile) as? MultiMediaFile {
                     if (item < params.count) {
-                        let keyToDelete = params[item]
-                        let deleteOk = library.removeMetadataWithKey(key: keyToDelete, file: file)
-                        if !deleteOk {
-                            throw MMCliError.delNotAllowedError
+                        let metadataToDelete = file.getMetaDataFromKey(key: params[item])
+                        for metaData in metadataToDelete {
+                            //If metadata could not be removed
+                            if !library.removeMetadataFromFile(meta: metaData, file: file) {
+                                throw MMCliError.delNotAllowedError
+                            }
                         }
                     }
                 } else {
@@ -358,39 +369,39 @@ class DelCommandHandler: MMCommandHandler {
     }
 }
 
-class DelAllCommandHandler: MMCommandHandler {
-
-    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        //Number of succesfully deleted instances
-        var successCount = 0
-        //Number of uncessfully deleted instances
-        var failCount = 0
-
-        if params.count > 0 {
-            let seq = stride(from: 0, to: params.count, by: 1)
-            for item in seq {
-                for file in library.all() {
-                    let result = library.removeMetadataWithKey(key: params[item], file: file)
-                    if result {
-                        successCount += 1
-                    } else {
-                        failCount += 1
-                    }
-                }
-            }
-            if successCount > 0 {
-                print("Sucessfully deleted \(successCount) metadata instance(s).")
-            }
-            if failCount > 0 {
-                throw MMCliError.delAllCouldntModifyAllFiles(failCount)
-            }
-            //At least one argument needed to issue del-all command
-        } else {
-            throw MMCliError.delAllFormatIncorrect
-        }
-        return MMResultSet(library.all())
-    }
-}
+//class DelAllCommandHandler: MMCommandHandler {
+//
+//    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
+//        //Number of succesfully deleted instances
+//        var successCount = 0
+//        //Number of uncessfully deleted instances
+//        var failCount = 0
+//
+////        if params.count > 0 {
+////            let seq = stride(from: 0, to: params.count, by: 1)
+////            for item in seq {
+////                for file in library.all() {
+////                    let result = library.removeMetadataFromFile(key: params[item], file: file)
+////                    if result {
+////                        successCount += 1
+////                    } else {
+////                        failCount += 1
+////                    }
+////                }
+////            }
+//            if successCount > 0 {
+//                print("Sucessfully deleted \(successCount) metadata instance(s).")
+//            }
+//            if failCount > 0 {
+//                throw MMCliError.delAllCouldntModifyAllFiles(failCount)
+//            }
+//            //At least one argument needed to issue del-all command
+////        } else {
+////            throw MMCliError.delAllFormatIncorrect
+////        }
+//        return MMResultSet(library.all())
+//    }
+//}
 
 class SaveCommandHandler: MMCommandHandler {
 
@@ -471,9 +482,14 @@ class CommandLineParser {
     private init() { }
 
     func getCommand(inputString: String) -> String {
+        //If the user prefixs with a tilde
         if (inputString.contains("~")) {
-            let path = inputString.replacingOccurrences(of: "~", with: NSString(string: "~").expandingTildeInPath)
-            return path
+            return inputString.replacingOccurrences(of: "~", with: NSString(string: "~").expandingTildeInPath)
+            //If the user doesn't prefix with a '/', therefore
+            //they are trying to reference the current directory.
+        } else if (inputString.first != "/") {
+            return FileManager.default.currentDirectoryPath
+                + ("/" + inputString)
         } else {
             return inputString
         }
@@ -498,3 +514,4 @@ class CommandLineParser {
         return false
     }
 }
+

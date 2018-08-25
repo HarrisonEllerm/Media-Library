@@ -8,15 +8,20 @@
 
 import Foundation
 
-class MultiMediaCollection: NSMMCollection, MMFileExport {
+class MultiMediaCollection: NSMMCollection {
 
     //The collection of files
     var collection: [MMFile]
+
+    //Multimap used when searching for O(1) access
+    private var metadataValueToFileMultiMap: [String: [MMFile]]
+
     //Count of files within the collection
     private var count: Int
 
     init() {
         collection = [MMFile]()
+        metadataValueToFileMultiMap = [String: [MMFile]]()
         count = 0
     }
 
@@ -27,6 +32,14 @@ class MultiMediaCollection: NSMMCollection, MMFileExport {
     */
     func add(file: MMFile) {
         collection.append(file)
+        for meta in file.metadata {
+            if var existingFiles = self.metadataValueToFileMultiMap[meta.value] {
+                existingFiles.append(file)
+                metadataValueToFileMultiMap[meta.value] = existingFiles
+            } else {
+                metadataValueToFileMultiMap.updateValue([file], forKey: meta.value)
+            }
+        }
         count += 1
     }
 
@@ -50,7 +63,15 @@ class MultiMediaCollection: NSMMCollection, MMFileExport {
     */
     func add(metadata: MMMetadata, file: MMFile) {
         if let upCastFile = file as? MultiMediaFile {
-            upCastFile.addMetadata(meta: metadata)
+            //If file was successfully modified
+            if upCastFile.addMetadata(meta: metadata) {
+                if var existingFiles = self.metadataValueToFileMultiMap[metadata.value] {
+                    existingFiles.append(file)
+                    metadataValueToFileMultiMap[metadata.value] = existingFiles
+                } else {
+                    metadataValueToFileMultiMap.updateValue([file], forKey: metadata.value)
+                }
+            }
         }
     }
 
@@ -89,12 +110,19 @@ class MultiMediaCollection: NSMMCollection, MMFileExport {
         - returns: a boolean representing if the opperation was successful
                    or not.
     */
-    func removeMetadataWithKey(key: String, file: MMFile) -> Bool {
+    func removeMetadataFromFile(meta: MMMetadata, file: MMFile) -> Bool {
         if let upCastFile = file as? MultiMediaFile {
-            let success = upCastFile.deleteMetaData(key)
-            if success {
-                self.replaceFile(file, upCastFile)
-                //Metadata successfully deleted
+            //If metadata was successfully deleted from file
+            if upCastFile.deleteMetaData(meta) {
+                //Now handle multi-map
+                if var existingFiles = metadataValueToFileMultiMap[meta.value] {
+                    for index in (0..<existingFiles.count).reversed() {
+                        if existingFiles[index].path == file.path {
+                            existingFiles.remove(at: index)
+                            metadataValueToFileMultiMap[meta.value] = existingFiles
+                        }
+                    }
+                }
                 return true
             }
         }
@@ -111,15 +139,12 @@ class MultiMediaCollection: NSMMCollection, MMFileExport {
         - returns: an array of files that contain the term.
      */
     func search(term: String) -> [MMFile] {
-        var returnList = [MultiMediaFile]()
-        for file in self.collection {
-            if let upCastFile = file as? MultiMediaFile {
-                if upCastFile.containsKey(term: term) {
-                    returnList.append(upCastFile)
-                }
-            }
+        //If term exists return files
+        if let res = metadataValueToFileMultiMap[term] {
+            return res
         }
-        return returnList
+        //Return nothing as term wasn't in map
+        return [MMFile]()
     }
 
     /**
@@ -139,11 +164,6 @@ class MultiMediaCollection: NSMMCollection, MMFileExport {
         get {
             return ""
         }
-    }
-
-
-    func write(filename: String, items: [MMFile]) throws {
-
     }
 }
 
@@ -165,14 +185,6 @@ extension MultiMediaCollection {
             }
         }
         return nil
-    }
-
-    func replaceFile(_ file: MMFile, _ upCastFile: MultiMediaFile) {
-        for var item in self.collection {
-            if item.path == file.path {
-                item = upCastFile
-            }
-        }
     }
 }
 

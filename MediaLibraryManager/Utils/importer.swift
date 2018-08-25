@@ -10,6 +10,15 @@ import Foundation
 
 class Importer: MMFileImport {
 
+    ///
+    /// Reads a file in and performs the necessary
+    /// steps needed to parse the json into MMFile
+    /// objects.
+    ///
+    /// - parameters: filename, the name of the file being read
+    /// - returns: an array of MMFiles, the result of parsing
+    ///               the file.
+    ///
     func read(filename: String) throws -> [MMFile] {
 
         var files = [MMFile]()
@@ -159,5 +168,4 @@ class Importer: MMFileImport {
         }
         print("<------------------------------------------------------------------>")
     }
-
 }
