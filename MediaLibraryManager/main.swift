@@ -50,6 +50,9 @@ while let line = prompt("> ") {
         case "list":
             last = try ListCommandHandler().handle(parts, last: last, library: lib)
 
+        case "list-meta":
+            last = try ListMetaCommandHandler().handle(parts, last: last, library: lib)
+    
         case "add":
             last = try AddCommandHandler().handle(parts, last: last, library: lib)
             break
@@ -168,6 +171,11 @@ while let line = prompt("> ") {
         print("""
                     > 'load /somedirectory/file.json'
                     > 'load file.json' {if file exists in current directory}
+              """)
+    } catch MMCliError.listMetaCommandFormatInvalid {
+        print("Could not list files containing <key> <value> due to incorrect syntax, please follow:")
+        print("""
+                    > 'list <somekey> <somevalue>...'
               """)
     }
 }

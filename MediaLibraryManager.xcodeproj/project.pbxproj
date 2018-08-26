@@ -29,6 +29,8 @@
 		6F7B6274211E7407005017D0 /* DocumentMultiMediaFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF5197A2119A50F00FFDD02 /* DocumentMultiMediaFile.swift */; };
 		6F7B6275211E7409005017D0 /* AudioMultiMediaFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF5197C2119A53F00FFDD02 /* AudioMultiMediaFile.swift */; };
 		6F7B6277211E7AD4005017D0 /* jsonFiles in Resources */ = {isa = PBXBuildFile; fileRef = 6F7B6276211E7AD4005017D0 /* jsonFiles */; };
+		6FC3541721334C4100F1B4C1 /* commandLineParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FC3541621334C4100F1B4C1 /* commandLineParser.swift */; };
+		6FC3541821334CBF00F1B4C1 /* commandLineParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FC3541621334C4100F1B4C1 /* commandLineParser.swift */; };
 		6FCB37EF212EC40400CC69E4 /* importer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCB37EE212EC40400CC69E4 /* importer.swift */; };
 		6FCB37F0212EC8D700CC69E4 /* importer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCB37EE212EC40400CC69E4 /* importer.swift */; };
 		6FCB37F3212ECB2400CC69E4 /* exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCB37F2212ECB2400CC69E4 /* exporter.swift */; };
@@ -59,6 +61,7 @@
 		6F7B6276211E7AD4005017D0 /* jsonFiles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = jsonFiles; sourceTree = "<group>"; };
 		6F9B73C72112F894003CDF8F /* multiMediaMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = multiMediaMetaData.swift; sourceTree = "<group>"; };
 		6F9B73C92112F945003CDF8F /* multiMediaFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = multiMediaFile.swift; sourceTree = "<group>"; };
+		6FC3541621334C4100F1B4C1 /* commandLineParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = commandLineParser.swift; sourceTree = "<group>"; };
 		6FCB37EE212EC40400CC69E4 /* importer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = importer.swift; sourceTree = "<group>"; };
 		6FCB37F2212ECB2400CC69E4 /* exporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = exporter.swift; sourceTree = "<group>"; };
 		D3161D2020D748F800EC97E8 /* MediaLibraryManager */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MediaLibraryManager; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -111,6 +114,7 @@
 			children = (
 				6FCB37EE212EC40400CC69E4 /* importer.swift */,
 				6FCB37F2212ECB2400CC69E4 /* exporter.swift */,
+				6FC3541621334C4100F1B4C1 /* commandLineParser.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -237,6 +241,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FC3541821334CBF00F1B4C1 /* commandLineParser.swift in Sources */,
 				6F7B6270211E73FD005017D0 /* multiMediaFile.swift in Sources */,
 				6F7B626E211E73F9005017D0 /* cli.swift in Sources */,
 				6FCB37F4212ECD4F00CC69E4 /* exporter.swift in Sources */,
@@ -257,6 +262,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6FC3541721334C4100F1B4C1 /* commandLineParser.swift in Sources */,
 				6F7B61CE211C4669005017D0 /* cli.swift in Sources */,
 				4FF5197D2119A53F00FFDD02 /* AudioMultiMediaFile.swift in Sources */,
 				6F7B61CC211C4669005017D0 /* multiMediaFile.swift in Sources */,

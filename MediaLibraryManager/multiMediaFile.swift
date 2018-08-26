@@ -12,7 +12,7 @@ class MultiMediaFile: MMFile {
 
     var metadata: [MMMetadata]
 
-    private var metadataKeyValueMultiMap: [String: [String]]
+    private var metadataKeyValueMultiMap = [String: [String]]()
 
     var filename: String
 
@@ -28,10 +28,28 @@ class MultiMediaFile: MMFile {
 
     init(metadata: [MMMetadata], filename: String, path: String, type: MediaType) {
         self.metadata = metadata
-        self.metadataKeyValueMultiMap = [String: [String]]()
         self.filename = filename
         self.path = path
         self.type = type
+        for item in metadata {
+            updateMap(meta: item)
+        }
+    }
+    
+    ///
+    /// Updates the internal map for a particular metadata
+    /// instance. Called initially upon instantiation, and then
+    /// again if more metadata is added to the file.
+    ///
+    /// - parameter : meta, the metadata instance.
+    ///
+    private func updateMap(meta: MMMetadata) {
+        if let _ = self.metadataKeyValueMultiMap[meta.keyword] {
+            metadataKeyValueMultiMap[meta.keyword]?.append(meta.value)
+        } else {
+            //Insert the keyword, create value list
+            metadataKeyValueMultiMap.updateValue([meta.value], forKey: meta.keyword)
+        }
     }
 
     ///
@@ -54,7 +72,16 @@ class MultiMediaFile: MMFile {
     }
 
 
-    //Check if a file contains metadata
+    /// This function checks if a particular file
+    /// contains metadata. It essentially queries the map
+    /// initially via the key (O(1)) then proceeds to query
+    /// the result if it finds an array of values (O(n) where
+    /// n is the number of values associated with the key).
+    ///
+    /// - parameter : meta, the metadat to search for
+    /// - returns: a boolean representing if the metadata
+    ///            was found or not.
+    ///
     func containsMetadata(meta: MMMetadata) -> Bool {
         //Found keyword
         if let res = metadataKeyValueMultiMap[meta.keyword] {
@@ -67,18 +94,19 @@ class MultiMediaFile: MMFile {
     }
 
 
-    //Adds metadata to a file
+    /// Adds metadata to a file. If the file is
+    /// successfully modified, the internal multi-map
+    /// is also updated.
+    ///
+    /// - parameter : meta, the metadata to add
+    /// - returns: a boolean representing if it was
+    ///            successfully added or not.
+    ///
     func addMetadata(meta: MMMetadata) -> Bool {
         if !(containsMetadata(meta: meta)) {
             metadata.append(meta)
             //If the keyword already exists, add value to list
-            if var existingValues = self.metadataKeyValueMultiMap[meta.keyword] {
-                existingValues.append(meta.value)
-                metadataKeyValueMultiMap[meta.keyword] = existingValues
-            } else {
-                //Insert the keyword, create value list
-                metadataKeyValueMultiMap.updateValue([meta.value], forKey: meta.keyword)
-            }
+            updateMap(meta: meta)
             return true
         }
         return false

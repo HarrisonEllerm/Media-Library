@@ -126,15 +126,26 @@ protocol MMCollection:CustomStringConvertible {
 protocol NSMMCollection: MMCollection {
     
     ///
-    /// Removes a particular instance of metadata from a file
+    /// Removes a particular instance of metadata from a file.
     ///
     /// - Parameters:
-    /// - key: The key of the metadata to delete.
+    /// - meta: The metadata to delete.
     /// - Returns:
     ///   A boolean that clarifies if the opperation was sucessful or
     ///   not.
     ///
     func removeMetadataFromFile(meta: MMMetadata, file: MMFile) -> Bool
+    
+    ///
+    /// Rewrites a particular instance of metadata to a file.
+    ///
+    /// - Parameters:
+    /// - meta: The metadata to delete.
+    /// - Returns:
+    ///   A boolean that clarifies if the opperation was sucessful or
+    ///   not.
+    ///
+    func rewriteMetadataToFile(meta: MMMetadata, file: MMFile) -> Bool
 }
 
 ///

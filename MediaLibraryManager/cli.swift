@@ -73,6 +73,9 @@ enum MMCliError: Error {
     //Thrown if the load command format is invalid
     case loadCommandFormatInvalid
 
+    //Thrown if the list-meta command format is invalid
+    case listMetaCommandFormatInvalid
+
 }
 
 /// Generate a friendly prompt and wait for the user to enter a line of input
@@ -175,7 +178,8 @@ class HelpCommandHandler: MMCommandHandler {
         print("""
 \thelp                              - this text
 \tload <filename> ...               - load file into the collection
-\tlist <term> ...                   - list all the files that have the term specified
+\tlist <value> ...                  - list all the files that have the metadata value specified
+\tlist-meta <key> <value> ...       - list all the files that have the metadata specified
 \tlist                              - list all the files in the collection
 \tadd <number> <key> <value> ...    - add some metadata to a file
 \tset <number> <key> <value> ...    - this is really a del followed by an add
@@ -215,19 +219,26 @@ class UnimplementedCommandHandler: MMCommandHandler {
     }
 }
 
-///Handle the 'load' command
+///Handles the 'load' command
 class LoadCommandHandler: MMCommandHandler {
-    //If the user doesn't prefix with a /
-
+    ///
+    /// Handles the 'load' command. First it checks to see if the
+    /// number of arguments is valid, then if so, it parses the users
+    /// supplied path. Finally, if the file(s) being read in are valid,
+    /// they are added to the collection.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         if params.count > 0 {
-            let importer = Importer()
             for item in params {
                 // Parse the command to replace '~' with home directory
                 let path = CommandLineParser.sharedInstance.getCommand(inputString: item)
                 //Check that the file actually exists before continuing
                 if FileManager.default.fileExists(atPath: path) {
-                    let files = try importer.read(filename: path)
+                    let files = try Importer.sharedInstance.read(filename: path)
                     for item in files {
                         library.add(file: item)
                     }
@@ -242,7 +253,20 @@ class LoadCommandHandler: MMCommandHandler {
     }
 }
 
+///Handles the 'list' command
 class ListCommandHandler: MMCommandHandler {
+    ///
+    /// Handles the 'list' command. If the library is empty, an error
+    /// is thrown which informs the user. If the user doesn't specify
+    /// a value to look for within the collection, it simply returns all
+    /// files in the collection. However, if the user is searching for one
+    /// or more keywords, a search is performed within the library and
+    /// results specific to those keywords are returned.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         //If there is nothing in the library
         if library.collection.isEmpty {
@@ -271,17 +295,82 @@ class ListCommandHandler: MMCommandHandler {
     }
 }
 
+///Handles the 'list-meta' command
+class ListMetaCommandHandler: MMCommandHandler {
+    
+    private let minParams = 2
+    private let strideBy = 2
+    
+    ///
+    /// Handles the 'list-meta' command. If the library is empty, an error
+    /// is thrown which informs the user. If the user doesn't specify at
+    /// least two arguents (i.e. <key> <value>) an error is thrown to inform
+    /// them of the correct format required. If the format is correct, a
+    /// search for the metadata instance(s) is performed on the library.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
+        if library.collection.isEmpty {
+            throw MMCliError.libraryEmpty
+        } else if params.count >= minParams {
+            var searchList = [MMFile]()
+            let seq = stride(from: 0, to: params.count, by: strideBy)
+            for item in seq {
+                //Metadata to search for
+                if (item < params.count) {
+                    //Metadata to search for
+                    let meta = MultiMediaMetaData(
+                        keyword: params[item].trimmingCharacters(in: .whitespaces),
+                        value: params[item + 1].trimmingCharacters(in: .whitespaces))
+                    let resultOfSearch = library.search(item: meta)
+                    for mmFile in resultOfSearch {
+                        if !searchList.contains(where: { (file) -> Bool in
+                            if file.path == mmFile.path {
+                                return true
+                            }
+                            return false
+                        }) {
+                            searchList.append(mmFile)
+                        }
+                    }
+                }
+            }
+            return MMResultSet(searchList)
+        } else {
+            //Must be at least 'list <key> <value>' i.e. params count 2
+            throw MMCliError.listMetaCommandFormatInvalid
+        }
+    }
+}
+
+
+///Handles the 'add' command
 class AddCommandHandler: MMCommandHandler {
 
-    //Minimum number of params acceptable for command
     private let minParams = 3
+    private let strideBy = 2
 
+    ///
+    /// Handles the 'add' command. If the format required for the command
+    /// is invalid, an error is thrown which informs the user of the
+    /// correct format to use. If the format is correct, the metadata passed
+    /// in as arguments to the function is added to the file specified by
+    /// the index. If the file cannot be found at the specified index, an error
+    /// is thrown to inform the user.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         //Check format before we even try to do anything
         if CommandLineParser.sharedInstance.validFormat(params, minParams) {
             //This is safe as already validated it exists
             let indexToFile = Int(params[0])!
-            let seq = stride(from: 2, to: params.count, by: 2)
+            let seq = stride(from: 2, to: params.count, by: strideBy)
             for item in seq {
                 if let file = last.getFileAtIndex(index: indexToFile) {
                     if (item < params.count) {
@@ -313,18 +402,20 @@ class SetCommandHandler: MMCommandHandler {
             let seq = stride(from: 1, to: params.count, by: 2)
             for item in seq {
                 if let file = last.getFileAtIndex(index: indexToFile) {
-//                    if (item < params.count) {
-//                        let keyToDelete = params[item]
-//                        let result = library.removeMetadataFromFile(key: keyToDelete, file: file)
-//                        if result {
-//                            let meta = MultiMediaMetaData(
-//                                keyword: params[item].trimmingCharacters(in: .whitespaces),
-//                                value: params[item + 1].trimmingCharacters(in: .whitespaces))
-//                            library.add(metadata: meta, file: file)
-//                        } else {
-//                            throw MMCliError.setKeyDidNotExist(params[item])
-//                        }
-//                    }
+                    if (item < params.count) {
+                        let keyToRewrite = params[item]
+                        
+                        
+                        //let result = library.removeMetadataFromFile(key: keyToDelete, file: file)
+                        //if result {
+                        //    let meta = MultiMediaMetaData(
+                        //        keyword: params[item].trimmingCharacters(in: .whitespaces),
+                        //        value: params[item + 1].trimmingCharacters(in: .whitespaces))
+                        //    library.add(metadata: meta, file: file)
+                        //} else {
+                        //    throw MMCliError.setKeyDidNotExist(params[item])
+                        //}
+                    }
                 } else {
                     throw MMCliError.addCouldNotLocateFile(indexToFile)
                 }
@@ -346,7 +437,6 @@ class DelCommandHandler: MMCommandHandler {
             //This is safe as already validated it exists
             let indexToFile = Int(params[0])!
             let seq = stride(from: 1, to: params.count, by: 1)
-
             for item in seq {
                 if let file = last.getFileAtIndex(index: indexToFile) as? MultiMediaFile {
                     if (item < params.count) {
@@ -469,49 +559,5 @@ class SaveSearchCommandHandler: MMCommandHandler {
     }
 }
 
-///
-/// A class that contains various convenience functions
-/// used to handle user command line input.
-///
-/// Implements the Singleton design pattern.
-///
-class CommandLineParser {
 
-    static let sharedInstance = CommandLineParser()
-
-    private init() { }
-
-    func getCommand(inputString: String) -> String {
-        //If the user prefixs with a tilde
-        if (inputString.contains("~")) {
-            return inputString.replacingOccurrences(of: "~", with: NSString(string: "~").expandingTildeInPath)
-            //If the user doesn't prefix with a '/', therefore
-            //they are trying to reference the current directory.
-        } else if (inputString.first != "/") {
-            return FileManager.default.currentDirectoryPath
-                + ("/" + inputString)
-        } else {
-            return inputString
-        }
-    }
-
-    /**
-     Quick sanity check used for some commands,
-     that makes sure the first item is a number and that
-     there is minimum number of arguments provided.
-     
-        i.e. add '0 foo bar'
-        i.e. set '0 foo bar'
-     
-     - parameter : params, the parameters passed in as args to add.
-     - returns: a boolean representing if the format of the args is correct.
-     */
-    func validFormat(_ params: [String], _ numberOfParams: Int) -> Bool {
-        //Minimum amount of args is 3 and first is a number (file number)
-        if params.count >= numberOfParams && (Int(params[0]) != nil) {
-            return true
-        }
-        return false
-    }
-}
 

@@ -9,6 +9,10 @@
 import Foundation
 
 class Importer: MMFileImport {
+    
+    static let sharedInstance = Importer()
+    
+    private init(){}
 
     ///
     /// Reads a file in and performs the necessary
@@ -61,7 +65,7 @@ class Importer: MMFileImport {
             throw MMCliError.couldNotParse
         }
         if validFileCount > 0 {
-            print("Successfully imported \(validFileCount) file(s)")
+            print("Successfully imported \(validFileCount) file(s) from \(filename)")
         }
         if(garbage.count > 0) {
             handleGarbage(garbage)
