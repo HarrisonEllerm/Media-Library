@@ -35,7 +35,7 @@ class MultiMediaFile: MMFile {
             updateMap(meta: item)
         }
     }
-    
+
     ///
     /// Updates the internal map for a particular metadata
     /// instance. Called initially upon instantiation, and then
@@ -93,6 +93,13 @@ class MultiMediaFile: MMFile {
         return false
     }
 
+    func containsKey(meta: MMMetadata) -> Bool {
+        //Found keyword
+        if let _ = metadataKeyValueMultiMap[meta.keyword] {
+            return true
+        }
+        return false
+    }
 
     /// Adds metadata to a file. If the file is
     /// successfully modified, the internal multi-map
@@ -106,8 +113,26 @@ class MultiMediaFile: MMFile {
         if !(containsMetadata(meta: meta)) {
             metadata.append(meta)
             //If the keyword already exists, add value to list
-            updateMap(meta: meta)
+            self.updateMap(meta: meta)
             return true
+        }
+        return false
+    }
+
+    func rewriteMetadata(meta: MMMetadata) -> Bool {
+        if !(containsKey(meta: meta)) {
+            return false
+            //It does contain the key value
+        } else {
+            if let preValues = metadataKeyValueMultiMap[meta.keyword] {
+                for value in preValues {
+                    let metaToDelete = MultiMediaMetaData(keyword: meta.keyword, value: value)
+                    //Since we have already tested that the key exists,
+                    //there is no need to check the return of self.delete
+                    let _ = self.delete(metaToDelete)
+                }
+                return self.addMetadata(meta: meta)
+            }
         }
         return false
     }

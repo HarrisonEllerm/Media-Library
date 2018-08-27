@@ -64,9 +64,10 @@ while let line = prompt("> ") {
         case "del":
             last = try DelCommandHandler().handle(parts, last: last, library: lib)
             break
-//        case "del-all":
-//            last = try DelAllCommandHandler().handle(parts, last: last, library: lib)
-//            break
+            
+        case "del-all":
+            last = try DelAllCommandHandler().handle(parts, last: last, library: lib)
+            break
 
         case "save":
             last = try SaveCommandHandler().handle(parts, last: last, library: lib)

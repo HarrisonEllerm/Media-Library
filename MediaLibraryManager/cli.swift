@@ -178,13 +178,13 @@ class HelpCommandHandler: MMCommandHandler {
         print("""
 \thelp                              - this text
 \tload <filename> ...               - load file into the collection
-\tlist <value> ...                  - list all the files that have the metadata value specified
+\tlist <item> ...                   - list all the files that have the metadata value or key item specified
 \tlist-meta <key> <value> ...       - list all the files that have the metadata specified
 \tlist                              - list all the files in the collection
 \tadd <number> <key> <value> ...    - add some metadata to a file
 \tset <number> <key> <value> ...    - this is really a del followed by an add
 \tdel <number> <key> ...            - removes a metadata item from a file
-\tdel-all <key> ...                 - removes a metadata item from every file in the collection.
+\tdel-all <key> <value> ...         - removes a metadata item from every file in the collection.
 \tsave-search <filename>            - saves the last list results to a file
 \tsave <filename>                   - saves the whole collection to a file
 \tquit                              - quit the program
@@ -297,10 +297,10 @@ class ListCommandHandler: MMCommandHandler {
 
 ///Handles the 'list-meta' command
 class ListMetaCommandHandler: MMCommandHandler {
-    
+
     private let minParams = 2
     private let strideBy = 2
-    
+
     ///
     /// Handles the 'list-meta' command. If the library is empty, an error
     /// is thrown which informs the user. If the user doesn't specify at
@@ -401,20 +401,14 @@ class SetCommandHandler: MMCommandHandler {
             let indexToFile = Int(params[0])!
             let seq = stride(from: 1, to: params.count, by: 2)
             for item in seq {
-                if let file = last.getFileAtIndex(index: indexToFile) {
+                if let rewriteFile = last.getFileAtIndex(index: indexToFile) {
                     if (item < params.count) {
-                        let keyToRewrite = params[item]
-                        
-                        
-                        //let result = library.removeMetadataFromFile(key: keyToDelete, file: file)
-                        //if result {
-                        //    let meta = MultiMediaMetaData(
-                        //        keyword: params[item].trimmingCharacters(in: .whitespaces),
-                        //        value: params[item + 1].trimmingCharacters(in: .whitespaces))
-                        //    library.add(metadata: meta, file: file)
-                        //} else {
-                        //    throw MMCliError.setKeyDidNotExist(params[item])
-                        //}
+                        let meta = MultiMediaMetaData(keyword: params[item].trimmingCharacters(in: .whitespaces),
+                            value: params[item + 1].trimmingCharacters(in: .whitespaces))
+                        //If not successfully rewritten
+                        if !library.rewriteMetadataToFile(meta: meta, file: rewriteFile) {
+                            throw MMCliError.setKeyDidNotExist(params[item])
+                        }
                     }
                 } else {
                     throw MMCliError.addCouldNotLocateFile(indexToFile)
@@ -459,99 +453,45 @@ class DelCommandHandler: MMCommandHandler {
     }
 }
 
-//class DelAllCommandHandler: MMCommandHandler {
-//
-//    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-//        //Number of succesfully deleted instances
-//        var successCount = 0
-//        //Number of uncessfully deleted instances
-//        var failCount = 0
-//
-////        if params.count > 0 {
-////            let seq = stride(from: 0, to: params.count, by: 1)
-////            for item in seq {
-////                for file in library.all() {
-////                    let result = library.removeMetadataFromFile(key: params[item], file: file)
-////                    if result {
-////                        successCount += 1
-////                    } else {
-////                        failCount += 1
-////                    }
-////                }
-////            }
-//            if successCount > 0 {
-//                print("Sucessfully deleted \(successCount) metadata instance(s).")
-//            }
-//            if failCount > 0 {
-//                throw MMCliError.delAllCouldntModifyAllFiles(failCount)
-//            }
-//            //At least one argument needed to issue del-all command
-////        } else {
-////            throw MMCliError.delAllFormatIncorrect
-////        }
-//        return MMResultSet(library.all())
-//    }
-//}
-
-class SaveCommandHandler: MMCommandHandler {
+class DelAllCommandHandler: MMCommandHandler {
 
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        let exporter = Exporter()
-        if params.count == 1 {
-            var name = params[0]
-            //Quick sanity check for json file ext
-            if !name.contains(".json") {
-                name.append(".json")
+        if params.count >= 2 {
+            for item in stride(from: 0, to: params.count, by: 2) {
+                if (item < params.count) {
+                    let meta = MultiMediaMetaData(keyword: params[item].trimmingCharacters(in: .whitespaces),
+                        value: params[item + 1].trimmingCharacters(in: .whitespaces))
+                    library.remove(metadata: meta)
+                }
             }
-            try exporter.write(filename: name, items: library.all())
+        } else {
+            throw MMCliError.delAllFormatIncorrect
+        }
+        return MMResultSet(library.all())
+    }
+}
+
+class SaveCommandHandler: MMCommandHandler {
+    //Minimum number of arguments
+    let minParams = 1
+
+    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
+        if params.count == minParams {
+            var name = params[0]
+            try Exporter.sharedInstance.write(filename: name, items: library.all())
         }
         return MMResultSet()
     }
 }
 
 class SaveSearchCommandHandler: MMCommandHandler {
+    
+    let numParams = 1
+    
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        var array = [Media]()
-        if params.count == 1 {
-            let seq = stride(from: 0, to: last.getAllFiles().count, by: 1)
-            for item in seq {
-                if let file = last.getFileAtIndex(index: item) {
-                    print("FILENAME = \(file.filename)")
-                    var meta = [String: String]()
-                    for item in file.metadata {
-                        meta.updateValue(item.keyword, forKey: item.value)
-                    }
-                    let mediaStruct = Media(fullpath: file.path, type: file.type, metadata: meta)
-                    array.append(mediaStruct)
-                }
-
-            }
-            print("ARRAY \(array.description)")
-            if let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                var filename = params[0]
-
-                if !filename.contains(".json") {
-                    filename.append(".json")
-                }
-
-                let directory = documentsURL.appendingPathComponent(filename)
-                do {
-                    let jsonEncoder = JSONEncoder()
-                    let jsonData = try jsonEncoder.encode(array)
-
-                    //let data = try JSONSerialization.data(withJSONObject: array, options: [])
-                    try jsonData.write(to: directory, options: [])
-                    print("Successfully saved the file.")
-
-                } catch {
-
-                    throw MMCliError.couldNotEncodeException
-                }
-
-            } else {
-                throw MMCliError.saveDirectoryError
-            }
-
+        if params.count == numParams {
+            let filename = params[0]
+            try Exporter.sharedInstance.write(filename: filename, items: last.getAllFiles())
         } else {
             throw MMCliError.saveMissingFileName()
         }

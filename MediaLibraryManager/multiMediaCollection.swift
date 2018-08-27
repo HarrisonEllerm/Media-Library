@@ -9,7 +9,7 @@
 import Foundation
 
 class MultiMediaCollection: NSMMCollection {
-   
+
     //The collection of files
     var collection: [MMFile]
 
@@ -63,9 +63,9 @@ class MultiMediaCollection: NSMMCollection {
     ///
     ///
     func add(metadata: MMMetadata, file: MMFile) {
-        if let upCastFile = file as? MultiMediaFile {
+        if let downCastFile = file as? MultiMediaFile {
             //If file was successfully modified
-            if upCastFile.addMetadata(meta: metadata) {
+            if downCastFile.addMetadata(meta: metadata) {
                 if let _ = self.metadataValueToFileMultiMap[metadata.value] {
                     metadataValueToFileMultiMap[metadata.value]?.append(file)
                 } else {
@@ -90,8 +90,9 @@ class MultiMediaCollection: NSMMCollection {
          - parameter : metadata, the metadata to be removed.
     */
     func remove(metadata: MMMetadata) {
-        print("Not supported: ")
-        print(" > see removeMetadataWithKey(key: String, file: MMFile) instead")
+        for currentFile in collection {
+            let _  = removeMetadataFromFile(meta: metadata, file: currentFile)
+        }
     }
 
     ///
@@ -111,9 +112,9 @@ class MultiMediaCollection: NSMMCollection {
     ///            or not.
     ///
     func removeMetadataFromFile(meta: MMMetadata, file: MMFile) -> Bool {
-        if let upCastFile = file as? MultiMediaFile {
+        if let downCastFile = file as? MultiMediaFile {
             //If metadata was successfully deleted from file
-            if upCastFile.deleteMetaData(meta) {
+            if downCastFile.deleteMetaData(meta) {
                 if var existingFiles = metadataValueToFileMultiMap[meta.value] {
                     for index in (0..<existingFiles.count).reversed() {
                         if existingFiles[index].path == file.path {
@@ -128,8 +129,11 @@ class MultiMediaCollection: NSMMCollection {
         //Could not delete metadata
         return false
     }
-    
+
     func rewriteMetadataToFile(meta: MMMetadata, file: MMFile) -> Bool {
+        if let downCastFile = file as? MultiMediaFile {
+            return downCastFile.rewriteMetadata(meta: meta)
+        }
         return false
     }
 
@@ -173,9 +177,9 @@ class MultiMediaCollection: NSMMCollection {
     func search(item: MMMetadata) -> [MMFile] {
         var searchResults = [MMFile]()
         for file in collection {
-            if let upCastFile = file as? MultiMediaFile {
-                if upCastFile.containsMetadata(meta: item) {
-                    searchResults.append(upCastFile)
+            if let downCastFile = file as? MultiMediaFile {
+                if downCastFile.containsMetadata(meta: item) {
+                    searchResults.append(downCastFile)
                 }
             }
         }
