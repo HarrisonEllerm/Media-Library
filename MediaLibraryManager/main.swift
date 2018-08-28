@@ -8,7 +8,6 @@
 
 import Foundation
 
-// TODO create your instance of your library here
 var lib = MultiMediaCollection()
 var last = MMResultSet()
 
@@ -30,7 +29,6 @@ var last = MMResultSet()
 //  using the results of the previous list, add foo=bar and baz=qux
 //  to the file at index 3 in the list
 //
-// Feel free to extend these commands/errors as you need to.
 while let line = prompt("> ") {
     var command: String = ""
     var parts = line.split(separator: " ").map({ String($0) })
@@ -84,6 +82,7 @@ while let line = prompt("> ") {
 
         case "clear":
             last = try ClearCommandHandler().handle(parts, last: last, library: lib)
+            showLast = false
             break
 
         case "quit":
@@ -133,7 +132,10 @@ while let line = prompt("> ") {
     } catch MMCliError.addCouldNotLocateFile(let indexToFile) {
         print("Could not locate file at index \(indexToFile) to add metadata to.")
     } catch MMCliError.saveMissingFileName {
-        print("Could not find the name of the file.")
+        print("Please specify then name of the file you wish the library to be saved to, i.e.:")
+        print("""
+                    > 'save test.json'
+              """)
     } catch MMCliError.saveDirectoryError {
         print("Could not find the users documents directory.")
     } catch MMCliError.couldNotEncodeException {
@@ -147,8 +149,8 @@ while let line = prompt("> ") {
     } catch MMCliError.setFormatIncorrect {
         print("Could not set due to incorrect syntax, please follow:")
         print("""
-                    > 'set 0 foo bar'
-                    > 'set 0 foo bar baz qux...'
+                    > 'set 0 <somekey> <somevalue>'
+                    > 'set 0 <somekey> <somevalue> <somekey> <somevalue>...'
               """)
     } catch MMCliError.delAllCouldntModifyAllFiles(let count) {
         print("<---------------------- Delete All Error Log ---------------------->")
@@ -164,8 +166,7 @@ while let line = prompt("> ") {
     } catch MMCliError.delAllFormatIncorrect {
         print("Could not del-all to incorrect syntax, please follow:")
         print("""
-                    > 'del-all 0 foo'
-                    > 'del-all foo baz...'
+                    > 'del-all <somekey> <somevalue>...'
               """)
     } catch MMCliError.loadCommandFormatInvalid {
         print("Could not load due to incorrect syntax, please follow:")

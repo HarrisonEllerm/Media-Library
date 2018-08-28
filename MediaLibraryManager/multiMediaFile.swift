@@ -9,15 +9,15 @@
 import Foundation
 
 class MultiMediaFile: MMFile {
-
+    //The files metadata
     var metadata: [MMMetadata]
-
+    //The files metadata key to metadata value multi-map
     private var metadataKeyValueMultiMap = [String: [String]]()
-
+    //The files name
     var filename: String
-
+    //The path to the file
     var path: String
-
+    //The MediaType associated with the file
     var type: MediaType
 
     var description: String {
@@ -78,7 +78,7 @@ class MultiMediaFile: MMFile {
     /// the result if it finds an array of values (O(n) where
     /// n is the number of values associated with the key).
     ///
-    /// - parameter : meta, the metadat to search for
+    /// - parameter : meta, the metadata to search for.
     /// - returns: a boolean representing if the metadata
     ///            was found or not.
     ///
@@ -93,7 +93,18 @@ class MultiMediaFile: MMFile {
         return false
     }
 
-    func containsKey(meta: MMMetadata) -> Bool {
+    /// This function checks if a particular file
+    /// contains a key associated with a instance of
+    /// metadata. It essentially queries the map
+    /// providing a constant time check to see if the key
+    /// exists within the files metadata.
+    ///
+    /// - parameter : meta, the metadata containing the key
+    ///               to search for.
+    /// - returns: a boolean representing if the metadata
+    ///            was found or not.
+    ///
+    private func containsKey(meta: MMMetadata) -> Bool {
         //Found keyword
         if let _ = metadataKeyValueMultiMap[meta.keyword] {
             return true
@@ -118,7 +129,15 @@ class MultiMediaFile: MMFile {
         }
         return false
     }
-
+    
+    /// Rewrites metadata to a file. If the file is
+    /// successfully modified, the internal multi-map
+    /// is also updated.
+    ///
+    /// - parameter : meta, the metadata to rewrite
+    /// - returns: a boolean representing if it was
+    ///            successfully rewritten or not.
+    ///
     func rewriteMetadata(meta: MMMetadata) -> Bool {
         if !(containsKey(meta: meta)) {
             return false
@@ -141,7 +160,7 @@ class MultiMediaFile: MMFile {
     /// This function is really a sanity check to ensure
     /// that when a user attempts to delete a particular
     /// key, the key they are trying to delete, if removed,
-    /// would not make the file invalid.
+    /// would not make the file invalid. 
     ///
     /// - parameter : key, the key of the metadata to delete
     ///               if valid.

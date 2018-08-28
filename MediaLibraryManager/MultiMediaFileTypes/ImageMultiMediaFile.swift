@@ -9,25 +9,25 @@
 import Foundation
 
 class ImageMultiMediaFile: MultiMediaFile {
-    
+
     ///Flag that represents if creator field is missing
-    private var creatorMissing : Bool = false
+    private var creatorMissing: Bool = false
     ///Flag that represents if resolution field is missing
-    private var resolutionMissing : Bool = false
-    
-    /**
-        A function that determines if the file is "valid". An
-        image file is valid if:
-     
-        (i) the creator field exists
-        (ii) the resolution field exists
-     
-        - returns: a Boolean representing if the file meets
-                   the above criterea.
-    */
+    private var resolutionMissing: Bool = false
+
+    ///
+    /// A function that determines if the file is "valid". An
+    /// image file is valid if:
+    ///
+    /// (i) the creator field exists
+    /// (ii) the resolution field exists
+    ///
+    /// - returns: a Boolean representing if the file meets
+    ///            the above criterea.
+    ///
     func isValid() -> Bool {
-        var valid : Bool = true
-        
+        var valid: Bool = true
+
         if !self.metadata.contains(where: { (m) -> Bool in
             if m.keyword == "creator" {
                 return true
@@ -38,7 +38,7 @@ class ImageMultiMediaFile: MultiMediaFile {
             valid = false
         }
         if !self.metadata.contains(where: ({ (m) -> Bool in
-            if m.keyword  == "resolution" {
+            if m.keyword == "resolution" {
                 return true
             }
             return false
@@ -48,15 +48,14 @@ class ImageMultiMediaFile: MultiMediaFile {
         }
         return valid
     }
-    
-    /**
-        A function that investigates the errors associated
-        with the file, so that these can be shown to the
-        user in an intuitive way.
-     
-        - returns: A String array with the errors found.
-    */
-    func getErrors() -> [String] { 
+
+
+    /// A function that investigates the errors associated
+    /// with the file, so that these can be shown to the
+    /// user in an intuitive way.
+    ///
+    /// - returns: A String array with the errors found.
+    func getErrors() -> [String] {
         var errors = [String]()
         if creatorMissing {
             errors.append("'creator' missing")

@@ -29,7 +29,7 @@ import Foundation
 ///    - Video
 ///    - Document
 ///    - Audio
-enum MediaType : String, Codable {
+enum MediaType: String, Codable {
     case image, video, document, audio
 }
 
@@ -39,11 +39,11 @@ enum MediaType : String, Codable {
 /// In this protocol we define three properties and that it must confrom to the
 /// CustomStringConvertable protocol (i.e. it also needs to have a description
 /// property).
-protocol MMFile: CustomStringConvertible{
-    var metadata: [MMMetadata] {get set}
-    var filename: String {get set}
-    var path: String {get set}
-    var type: MediaType {get set}
+protocol MMFile: CustomStringConvertible {
+    var metadata: [MMMetadata] { get set }
+    var filename: String { get set }
+    var path: String { get set }
+    var type: MediaType { get set }
 }
 
 
@@ -64,36 +64,36 @@ protocol MMFile: CustomStringConvertible{
 /// When we search for the metadata, we ultimately want to display the files
 /// that have that metadata, we're keeping track of the associated file here.
 ///
-protocol MMMetadata: CustomStringConvertible{
-    var keyword: String {get set}
-    var value: String {get set}
+protocol MMMetadata: CustomStringConvertible {
+    var keyword: String { get set }
+    var value: String { get set }
 }
 
 
 /// The main functions of the media metadata collection.
-protocol MMCollection:CustomStringConvertible {
-    
+protocol MMCollection: CustomStringConvertible {
+
     ///
     /// Adds a file's metadata to the media metadata collection.
     ///
     /// - Parameters:
     /// - file: The file and associated metadata to add to the collection
     func add(file: MMFile)
-    
+
     ///
     /// Adds a specific instance of a metadata to the collection
     ///
     /// - Parameters:
     /// - metadata: The item to add to the collection
     func add(metadata: MMMetadata, file: MMFile)
-    
+
     ///
     /// Removes a specific instance of a metadata from the collection
     ///
     /// - Parameters:
     /// - metadata: The item to remove from the collection
     func remove(metadata: MMMetadata)
-    
+
     ///
     /// Finds all the files associated with the keyword
     ///
@@ -103,7 +103,7 @@ protocol MMCollection:CustomStringConvertible {
     /// A list of all the metadata associated with the keyword, possibly an
     /// empty list.
     func search(term: String) -> [MMFile]
-    
+
     ///
     /// Returns a list of all the files in the index
     ///
@@ -111,7 +111,7 @@ protocol MMCollection:CustomStringConvertible {
     /// - Returns:
     /// A list of all the files in the index, possibly an empty list.
     func all() -> [MMFile]
-    
+
     ///
     /// Finds all the metadata associated with the keyword of the item
     ///
@@ -124,7 +124,7 @@ protocol MMCollection:CustomStringConvertible {
 }
 
 protocol NSMMCollection: MMCollection {
-    
+
     ///
     /// Removes a particular instance of metadata from a file.
     ///
@@ -135,7 +135,7 @@ protocol NSMMCollection: MMCollection {
     ///   not.
     ///
     func removeMetadataFromFile(meta: MMMetadata, file: MMFile) -> Bool
-    
+
     ///
     /// Rewrites a particular instance of metadata to a file.
     ///

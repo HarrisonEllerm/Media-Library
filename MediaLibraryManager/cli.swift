@@ -194,8 +194,16 @@ class HelpCommandHandler: MMCommandHandler {
 }
 
 /// Handle the 'clear' command
-/// Just an easy way to create some clear space on the console
 class ClearCommandHandler: MMCommandHandler {
+    ///
+    /// This function just provides an easy way to
+    /// clear some space on the console, much like how
+    /// 'clear' would work in most Unix terminals.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         for _ in 1...100 {
             puts(" ")
@@ -206,21 +214,35 @@ class ClearCommandHandler: MMCommandHandler {
 
 /// Handle the 'quit' command
 class QuitCommandHandler: MMCommandHandler {
+    //Success exit code
+    let ok: Int32 = 0
+    ///
+    /// Handles the 'quit' command. First it checks to see if the
+    /// last resultset still contains results, and then prompts the
+    /// user to warn them.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        // you may want to prompt if the previous result set hasn't been saved...
-        exit(0)
-    }
-}
-
-// All the other commands are unimplemented
-class UnimplementedCommandHandler: MMCommandHandler {
-    func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        throw MMCliError.unimplementedCommand
+        if last.hasResults() {
+            print("Warning, you may have unsaved items within the collection.")
+            print("Do you still wish to exit?[y/n]")
+            if let res = readLine() {
+                if res.elementsEqual("y") || res.elementsEqual("Y") {
+                    exit(ok)
+                }
+            }
+        }
+        return last
     }
 }
 
 ///Handles the 'load' command
 class LoadCommandHandler: MMCommandHandler {
+    //Minimum number of params for command
+    let minParams = 1
     ///
     /// Handles the 'load' command. First it checks to see if the
     /// number of arguments is valid, then if so, it parses the users
@@ -232,7 +254,7 @@ class LoadCommandHandler: MMCommandHandler {
     /// - parameter : library, the multi-media library being opperated on.
     ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        if params.count > 0 {
+        if params.count >= minParams {
             for item in params {
                 // Parse the command to replace '~' with home directory
                 let path = CommandLineParser.sharedInstance.getCommand(inputString: item)
@@ -243,11 +265,13 @@ class LoadCommandHandler: MMCommandHandler {
                         library.add(file: item)
                     }
                 } else {
+                    //Could not find the file
                     throw MMCliError.invalidFile(path)
                 }
             }
             return MMResultSet()
         } else {
+            //Load format was incorrect
             throw MMCliError.loadCommandFormatInvalid
         }
     }
@@ -255,6 +279,8 @@ class LoadCommandHandler: MMCommandHandler {
 
 ///Handles the 'list' command
 class ListCommandHandler: MMCommandHandler {
+    //Minimum number of params for command
+    let minParams = 0
     ///
     /// Handles the 'list' command. If the library is empty, an error
     /// is thrown which informs the user. If the user doesn't specify
@@ -272,7 +298,7 @@ class ListCommandHandler: MMCommandHandler {
         if library.collection.isEmpty {
             throw MMCliError.libraryEmpty
             //If they just want to see everything in the library
-        } else if params.count == 0 {
+        } else if params.count == minParams {
             return MMResultSet(library.all())
         } else {
             //Searching for one or more keywords
@@ -297,10 +323,12 @@ class ListCommandHandler: MMCommandHandler {
 
 ///Handles the 'list-meta' command
 class ListMetaCommandHandler: MMCommandHandler {
-
+    //Minimum number of params for command
     private let minParams = 2
+    //Number of command line arguments to stride accross
     private let strideBy = 2
-
+    //Index to begin striding from
+    private let startIndex = 0
     ///
     /// Handles the 'list-meta' command. If the library is empty, an error
     /// is thrown which informs the user. If the user doesn't specify at
@@ -317,9 +345,7 @@ class ListMetaCommandHandler: MMCommandHandler {
             throw MMCliError.libraryEmpty
         } else if params.count >= minParams {
             var searchList = [MMFile]()
-            let seq = stride(from: 0, to: params.count, by: strideBy)
-            for item in seq {
-                //Metadata to search for
+            for item in stride(from: startIndex, to: params.count, by: strideBy) {
                 if (item < params.count) {
                     //Metadata to search for
                     let meta = MultiMediaMetaData(
@@ -349,10 +375,12 @@ class ListMetaCommandHandler: MMCommandHandler {
 
 ///Handles the 'add' command
 class AddCommandHandler: MMCommandHandler {
-
+    //Minimum number of params for command
     private let minParams = 3
+    //Number of command line arguments to stride accross
     private let strideBy = 2
-
+    //Index to begin striding from
+    private let startIndex = 2
     ///
     /// Handles the 'add' command. If the format required for the command
     /// is invalid, an error is thrown which informs the user of the
@@ -370,8 +398,7 @@ class AddCommandHandler: MMCommandHandler {
         if CommandLineParser.sharedInstance.validFormat(params, minParams) {
             //This is safe as already validated it exists
             let indexToFile = Int(params[0])!
-            let seq = stride(from: 2, to: params.count, by: strideBy)
-            for item in seq {
+            for item in stride(from: startIndex, to: params.count, by: strideBy) {
                 if let file = last.getFileAtIndex(index: indexToFile) {
                     if (item < params.count) {
                         let meta = MultiMediaMetaData(
@@ -380,27 +407,41 @@ class AddCommandHandler: MMCommandHandler {
                         library.add(metadata: meta, file: file)
                     }
                 } else {
+                    //Could not locate file at given index
                     throw MMCliError.addCouldNotLocateFile(indexToFile)
                 }
             }
         } else {
+            //Delete format was incorrect
             throw MMCliError.addDelFormatIncorrect
         }
         return MMResultSet(library.all())
     }
 }
-
+//Handles the 'set' command
 class SetCommandHandler: MMCommandHandler {
     //Minimum number of params acceptable for command
     private let minParams = 3
-
+    //Number of command line arguments to stride accross
+    private let strideBy = 2
+    //Index to begin striding from
+    private let startIndex = 1
+    ///
+    /// Handles the 'set' command. Grabs the file at the index the user
+    /// has provided (if a file exists at that index), creates the 'new'
+    /// metadata (which consists of the 'old' key and 'new' value), and
+    /// then rewrites the metadata.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         //Check format before we even try to do anything
         if CommandLineParser.sharedInstance.validFormat(params, minParams) {
             //This is safe as already validated it exists
             let indexToFile = Int(params[0])!
-            let seq = stride(from: 1, to: params.count, by: 2)
-            for item in seq {
+            for item in stride(from: startIndex, to: params.count, by: strideBy) {
                 if let rewriteFile = last.getFileAtIndex(index: indexToFile) {
                     if (item < params.count) {
                         let meta = MultiMediaMetaData(keyword: params[item].trimmingCharacters(in: .whitespaces),
@@ -411,27 +452,51 @@ class SetCommandHandler: MMCommandHandler {
                         }
                     }
                 } else {
+                    //Could not locate file at given index
                     throw MMCliError.addCouldNotLocateFile(indexToFile)
                 }
             }
         } else {
+            //Set format was incorrect
             throw MMCliError.setFormatIncorrect
         }
         return MMResultSet(library.all())
     }
 }
-
+//Handles the 'del' command
 class DelCommandHandler: MMCommandHandler {
     //Minimum number of params acceptable for command
     private let minParams = 2
-
+    //Number of command line arguments to stride accross
+    private let strideBy = 1
+    //Index to begin striding from
+    private let startIndex = 1
+    ///
+    /// Handles the 'del' command. Grabs the file at the index the user
+    /// has provided (if a file exists at that index), and then calls a
+    /// function inside the library that deletes the metadata associated
+    /// with he key value the user passes in as input.
+    ///
+    /// This function 'cascades', i.e. 'del 0 foo'. If there is more than
+    /// one key associated with foo all metadata associated with that key
+    /// will be removed from the file:
+    ///
+    ///   { foo: bar, foo: baz, harry: ellerm, baz: peden ...}
+    ///
+    ///    -> resulting in:
+    ///
+    ///   { harry: ellerm, baz: peden ...}
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         //Check format before we even try to do anything
         if CommandLineParser.sharedInstance.validFormat(params, minParams) {
             //This is safe as already validated it exists
             let indexToFile = Int(params[0])!
-            let seq = stride(from: 1, to: params.count, by: 1)
-            for item in seq {
+            for item in stride(from: startIndex, to: params.count, by: strideBy) {
                 if let file = last.getFileAtIndex(index: indexToFile) as? MultiMediaFile {
                     if (item < params.count) {
                         let metadataToDelete = file.getMetaDataFromKey(key: params[item])
@@ -443,21 +508,36 @@ class DelCommandHandler: MMCommandHandler {
                         }
                     }
                 } else {
+                    //Could not find file at specified index
                     throw MMCliError.addCouldNotLocateFile(indexToFile)
                 }
             }
+            //Delete parameters did not conform to expected format
         } else {
+            //Delete format was incorrect
             throw MMCliError.addDelFormatIncorrect
         }
         return MMResultSet(library.all())
     }
 }
-
+//Handles the 'del-all' command
 class DelAllCommandHandler: MMCommandHandler {
-
+    //Minimum number of params acceptable for command
+    private let minParams = 2
+    //Number of command line arguments to stride accross
+    private let strideBy = 2
+    ///
+    /// Handles the 'del-all' command. Reads in the metadata from the CLI
+    /// and then calls a function within the library which removes that
+    /// particular metadata instance from all files within the collection.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        if params.count >= 2 {
-            for item in stride(from: 0, to: params.count, by: 2) {
+        if params.count >= minParams {
+            for item in stride(from: 0, to: params.count, by: strideBy) {
                 if (item < params.count) {
                     let meta = MultiMediaMetaData(keyword: params[item].trimmingCharacters(in: .whitespaces),
                         value: params[item + 1].trimmingCharacters(in: .whitespaces))
@@ -465,34 +545,53 @@ class DelAllCommandHandler: MMCommandHandler {
                 }
             }
         } else {
+            //Format was incorrect for del-all command
             throw MMCliError.delAllFormatIncorrect
         }
         return MMResultSet(library.all())
     }
 }
-
+//Handles the 'save' command
 class SaveCommandHandler: MMCommandHandler {
     //Minimum number of arguments
     let minParams = 1
-
+    ///
+    /// Handles the 'save' command. Passes in all files within the library to
+    /// an exporter, which then exports those files into a json file.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
         if params.count == minParams {
-            var name = params[0]
+            let name = params[0]
             try Exporter.sharedInstance.write(filename: name, items: library.all())
+        } else {
+            //Missing file name to save it to
+            throw MMCliError.saveMissingFileName()
         }
         return MMResultSet()
     }
 }
-
+//Handles the 'save-search' command
 class SaveSearchCommandHandler: MMCommandHandler {
-    
-    let numParams = 1
-    
+    //Minimum number of arguments
+    let minParams = 1
+    ///
+    /// Handles the 'save' command. Passes in all files within the 'last'
+    /// resultset to an exporter, which then exports those files into a json file.
+    ///
+    /// - parameter : params, an array of strings representing user input.
+    /// - parameter : last, the last result-set.
+    /// - parameter : library, the multi-media library being opperated on.
+    ///
     func handle(_ params: [String], last: MMResultSet, library: MultiMediaCollection) throws -> MMResultSet {
-        if params.count == numParams {
+        if params.count == minParams {
             let filename = params[0]
             try Exporter.sharedInstance.write(filename: filename, items: last.getAllFiles())
         } else {
+            //Missing filename to save it to
             throw MMCliError.saveMissingFileName()
         }
         return MMResultSet()

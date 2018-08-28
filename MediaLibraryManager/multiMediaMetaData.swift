@@ -9,9 +9,9 @@
 import Foundation
 
 class MultiMediaMetaData : MMMetadata {
-    
+    //The keyword associated with the metadata
     var keyword: String
-    
+    //the value associated with the metadata
     var value: String
     
     var description: String {

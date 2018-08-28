@@ -17,12 +17,18 @@ class MultiMediaCollection: NSMMCollection {
     private var metadataValueToFileMultiMap: [String: [MMFile]]
 
     //Count of files within the collection
-    private var count: Int
+    private var count = 0
+    
+    //Description of contents
+    var description: String {
+        get {
+            return "MultiMediaCollection[ \(collection)]"
+        }
+    }
 
     init() {
         collection = [MMFile]()
         metadataValueToFileMultiMap = [String: [MMFile]]()
-        count = 0
     }
 
     ///
@@ -45,15 +51,21 @@ class MultiMediaCollection: NSMMCollection {
     }
 
     ///
-    /// Returns the count of files within the collection.
+    /// Adds metadata to a file, and then updates
+    /// that file within the collection.
     ///
-    /// - returns: an Int representing the count of files
-    ///            within the collection.
+    /// - parameter : metadata, the metadata to be added.
+    /// - parameter : file, the file that the metadata is to be added to.
     ///
-    func getCount() -> Int {
-        return self.count
+    func add(metadata: MMMetadata, file: MMFile) {
+        if let downCastFile = file as? MultiMediaFile {
+            //If file was successfully modified
+            if downCastFile.addMetadata(meta: metadata) {
+               addMetadataToMultiMap(metadata: metadata, file: file)
+            }
+        }
     }
-
+    
     ///
     /// Adds metadata to a file, and then updates
     /// that file within the collection.
@@ -61,37 +73,23 @@ class MultiMediaCollection: NSMMCollection {
     /// - parameter : metadata, the metadata to be added.
     /// - parameter : file, the file that the metadata is to be added to.
     ///
-    ///
-    func add(metadata: MMMetadata, file: MMFile) {
-        if let downCastFile = file as? MultiMediaFile {
-            //If file was successfully modified
-            if downCastFile.addMetadata(meta: metadata) {
-                if let _ = self.metadataValueToFileMultiMap[metadata.value] {
-                    metadataValueToFileMultiMap[metadata.value]?.append(file)
-                } else {
-                    metadataValueToFileMultiMap.updateValue([file], forKey: metadata.value)
-                }
-            }
+    func addMetadataToMultiMap(metadata: MMMetadata, file: MMFile) {
+        if let _ = self.metadataValueToFileMultiMap[metadata.value] {
+            metadataValueToFileMultiMap[metadata.value]?.append(file)
+        } else {
+            metadataValueToFileMultiMap.updateValue([file], forKey: metadata.value)
         }
     }
 
-    /**
-        Removes metadata from the collection
-        as a whole.
-     
-        Unused due to removeMetadataWithKey behaving in a more
-        useful way for our specific implementation.
-        Perhaps eventually the MMCollection protocol could be
-        revised to not include this (in this implementation).
-     
-        Remove metada from all files. Inverted Index.
-        
-     
-         - parameter : metadata, the metadata to be removed.
-    */
+    ///
+    /// Removes metadata from the collection
+    /// as a whole.
+    ///
+    /// - parameter : metadata, the metadata to be removed.
+    ///
     func remove(metadata: MMMetadata) {
         for currentFile in collection {
-            let _  = removeMetadataFromFile(meta: metadata, file: currentFile)
+            let _ = removeMetadataFromFile(meta: metadata, file: currentFile)
         }
     }
 
@@ -106,7 +104,7 @@ class MultiMediaCollection: NSMMCollection {
     ///   (ii) Deleting the key value would result in a
     ///        file of a specific type becoming invalid.
     ///
-    /// - parameter : key, the key value of the metadata to be removed.
+    /// - parameter : meta, the metadata to be removed.
     /// - parameter : file, the file to remove the metadata from.
     /// - returns: a boolean representing if the opperation was successful
     ///            or not.
@@ -115,23 +113,52 @@ class MultiMediaCollection: NSMMCollection {
         if let downCastFile = file as? MultiMediaFile {
             //If metadata was successfully deleted from file
             if downCastFile.deleteMetaData(meta) {
-                if var existingFiles = metadataValueToFileMultiMap[meta.value] {
-                    for index in (0..<existingFiles.count).reversed() {
-                        if existingFiles[index].path == file.path {
-                            existingFiles.remove(at: index)
-                            metadataValueToFileMultiMap[meta.value] = existingFiles
-                        }
-                    }
-                }
-                return true
+                //Handle the maps
+                return removeMetadataFromMultiMap(meta: meta, file: file)
             }
         }
         //Could not delete metadata
         return false
     }
-
+    
+    ///
+    /// Removes metadata from the multimap.
+    ///
+    /// - parameter : meta, the metadata to be removed.
+    /// - parameter : file, the file to remove the metadata from.
+    /// - returns: a boolean representing if the opperation was successful
+    ///            or not.
+    ///
+    private func removeMetadataFromMultiMap(meta: MMMetadata, file: MMFile) -> Bool {
+        if var existingFilesByValue = metadataValueToFileMultiMap[meta.value] {
+            for index in (0..<existingFilesByValue.count).reversed() {
+                if existingFilesByValue[index].path == file.path {
+                    existingFilesByValue.remove(at: index)
+                    metadataValueToFileMultiMap[meta.value] = existingFilesByValue
+                }
+                return true
+            }
+        }
+        return false
+    }
+    
+    ///
+    /// Rewrites metadata to a file. I.e. the metadata being passed
+    /// in contains the 'old' key and 'new' value. The 'old' value
+    /// is then replaced by the 'new' value.
+    ///
+    /// - parameter : metadata, the instance containing the old key and
+    ///               new value.
+    /// - parameter : file, the file that is being opperated on.
+    /// - returns: a boolean depecting if the opperation was succesful
+    ///
     func rewriteMetadataToFile(meta: MMMetadata, file: MMFile) -> Bool {
         if let downCastFile = file as? MultiMediaFile {
+            let oldMetaData = downCastFile.getMetaDataFromKey(key: meta.keyword)
+            for metaD in oldMetaData {
+                let _ = removeMetadataFromMultiMap(meta: metaD, file: file)
+            }
+            addMetadataToMultiMap(metadata: meta, file: file)
             return downCastFile.rewriteMetadata(meta: meta)
         }
         return false
@@ -170,7 +197,7 @@ class MultiMediaCollection: NSMMCollection {
     /// specific key value pair defined. This differs from
     /// search(term: String) which only searches for values.
     ///
-    /// - parameters: item, the metadata being searched for
+    /// - parameters: item, the metadata being searched for.
     /// - returns: an array of files that contain the metadata
     ///            being searched for.
     ///
@@ -185,16 +212,18 @@ class MultiMediaCollection: NSMMCollection {
         }
         return searchResults
     }
-
-    var description: String {
-        get {
-            return ""
-        }
-    }
 }
 
 extension MultiMediaCollection {
-
+    
+    ///
+    /// A function used when testing to test if
+    /// a file has or hasn't been added to the collection.
+    ///
+    /// - parameter : fileUrl, the path of the file being tested.
+    /// - returns: a boolean representing if it is in the collection
+    ///            or not.
+    ///
     func containsFile(fileUrl: String) -> Bool {
         return self.collection.contains(where: { (mmfile) -> Bool in
             if mmfile.path == fileUrl {
@@ -204,6 +233,13 @@ extension MultiMediaCollection {
         })
     }
 
+    ///
+    /// A function used when testing to retrieve a file
+    /// from the library via its path. Returns an MMFile
+    /// optional.
+    ///
+    /// - parameter: fileUrl, the path of the file being retrieved.
+    /// - returns: a MMFile? representing the file if it was found.
     func getFile(fileUrl: String) -> MMFile? {
         for item in self.collection {
             if item.path == fileUrl {
