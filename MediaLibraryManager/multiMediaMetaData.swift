@@ -19,10 +19,9 @@ class MultiMediaMetaData : MMMetadata {
             return "\(keyword):\(value)"
         }
     }
-    
+
     init(keyword: String, value: String) {
         self.keyword = keyword
         self.value = value
     }
-    
 }

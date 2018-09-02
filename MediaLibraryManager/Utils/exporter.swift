@@ -2,8 +2,6 @@
 //  exporter.swift
 //  MediaLibraryManager
 //
-//
-//
 //  Created by Harrison Ellerm on 23/08/18.
 //  Copyright © 2018 Paul Crane. All rights reserved.
 //
@@ -16,6 +14,12 @@ class Exporter: MMFileExport {
 
     private init() { }
 
+    ///
+    /// Supports the exporting of multi-media files to disk.
+    ///
+    /// - parameter : filename, the name of the file being written.
+    /// - parameter : items, the files being written.
+    ///
     func write(filename: String, items: [MMFile]) throws {
         //Check they are exporting to a JSON file
         var actualFileName = filename
